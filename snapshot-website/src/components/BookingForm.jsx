@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, CheckCircle, AlertCircle, Loader } from 'lucide-react'
-import { packages } from '../data/pricing'
+import { usePricing } from '../hooks/usePricing'
 import { supabase } from '../lib/supabase'
 
 const eventTypes = [
@@ -25,6 +25,7 @@ export default function BookingForm({ selectedPackage, onClose, inline = false }
   const [errors, setErrors]   = useState({})
   const [status, setStatus]   = useState('idle')   // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState('')
+  const { packages } = usePricing()
 
   useEffect(() => {
     if (selectedPackage) setForm(f => ({ ...f, package: selectedPackage.name }))
