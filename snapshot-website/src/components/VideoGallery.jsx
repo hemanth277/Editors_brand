@@ -1,57 +1,20 @@
 import { useState, useRef } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
-import { Play, X, Volume2, VolumeX } from 'lucide-react'
-
-// Sample vertical video items (replace with real assets)
-const videos = [
-  {
-    id: 1,
-    title: 'Wedding Highlights',
-    category: 'Wedding',
-    thumbnail: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=80',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  },
-  {
-    id: 2,
-    title: 'Couple Entry',
-    category: 'Wedding',
-    thumbnail: 'https://images.unsplash.com/photo-1529636798458-92182e662485?w=400&q=80',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  },
-  {
-    id: 3,
-    title: 'Haldi Moments',
-    category: 'Haldi',
-    thumbnail: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=400&q=80',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  },
-  {
-    id: 4,
-    title: 'Dance Performance',
-    category: 'Sangeet',
-    thumbnail: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=400&q=80',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  },
-  {
-    id: 5,
-    title: 'Candid Celebrations',
-    category: 'Wedding',
-    thumbnail: 'https://images.unsplash.com/photo-1511795409834-432f7b1728b2?w=400&q=80',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  },
-  {
-    id: 6,
-    title: 'Birthday Party',
-    category: 'Birthday',
-    thumbnail: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&q=80',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  },
-]
+import { Play, X, Volume2, VolumeX, Loader } from 'lucide-react'
+import { usePortfolioVideos } from '../hooks/usePortfolioVideos'
 
 export default function VideoGallery() {
   const [activeVideo, setActiveVideo] = useState(null)
-  const ref = useRef(null)
+  const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
+  const { videos, loading } = usePortfolioVideos()
+
+  // Normalise field names: Supabase uses public_url/thumbnail_url, fallback uses videoUrl/thumbnail
+  const normalised = videos.map(v => ({
+    ...v,
+    videoUrl:  v.public_url   || v.videoUrl  || '',
+    thumbnail: v.thumbnail_url || v.thumbnail || '',
+  }))
 
   return (
     <section
@@ -100,6 +63,12 @@ export default function VideoGallery() {
         </div>
 
         {/* Video grid */}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '48px 0' }}>
+            <Loader size={28} style={{ color: '#FF351F', animation: 'spin 1s linear infinite' }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        ) : (
         <div
           style={{
             display: 'grid',
@@ -108,7 +77,7 @@ export default function VideoGallery() {
           }}
           className="video-grid"
         >
-          {videos.map((video, i) => (
+          {normalised.map((video, i) => (
             <motion.div
               key={video.id}
               initial={{ opacity: 0, y: 24 }}
@@ -190,6 +159,7 @@ export default function VideoGallery() {
             </motion.div>
           ))}
         </div>
+        )}
       </div>
 
       {/* Video Modal */}

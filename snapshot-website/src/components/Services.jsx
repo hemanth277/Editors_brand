@@ -1,11 +1,12 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { ArrowUpRight } from 'lucide-react'
-import { services } from '../data/services'
+import { ArrowUpRight, Loader } from 'lucide-react'
+import { useServices } from '../hooks/useServices'
 
 export default function Services() {
-  const ref = useRef(null)
+  const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
+  const { services, loading } = useServices()
 
   return (
     <section
@@ -70,22 +71,33 @@ export default function Services() {
           </motion.p>
         </div>
 
+        {/* Loading */}
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '48px 0' }}>
+            <Loader size={28} style={{ color: '#FF351F', animation: 'spin 1s linear infinite' }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        )}
+
         {/* Service cards grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '16px',
-          }}
-          className="services-grid"
-        >
-          {services.map((service, i) => (
-            <ServiceCard key={service.id} service={service} index={i} inView={inView} />
-          ))}
-        </div>
+        {!loading && (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '16px',
+            }}
+            className="services-grid"
+          >
+            {services.map((service, i) => (
+              <ServiceCard key={service.id} service={service} index={i} inView={inView} />
+            ))}
+          </div>
+        )}
       </div>
 
       <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
         @media (max-width: 1024px) {
           .services-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .services-header { grid-template-columns: 1fr !important; gap: 20px !important; }
@@ -99,6 +111,9 @@ export default function Services() {
 }
 
 function ServiceCard({ service, index, inView }) {
+  // Support both Supabase column (image_url) and static fallback (image)
+  const imageSrc = service.image_url || service.image || ''
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 32 }}
@@ -114,7 +129,7 @@ function ServiceCard({ service, index, inView }) {
       }}
     >
       <img
-        src={service.image}
+        src={imageSrc}
         alt={service.title}
         loading="lazy"
         className="zoom-target"
