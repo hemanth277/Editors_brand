@@ -5,11 +5,13 @@ import { X, Menu } from 'lucide-react'
 
 const navLinks = [
   { label: 'Home', to: '/' },
-  { label: 'Services', to: '/services' },
-  { label: 'Our Work', to: '/our-work' },
-  { label: 'Pricing', to: '/#pricing' },
   { label: 'About', to: '/#about' },
-  { label: 'FAQs', to: '/#faqs' },
+  { label: 'Services', to: '/services' },
+  { label: 'Portfolio', to: '/our-work' },
+  { label: 'Process', to: '/#process' },
+  { label: 'Pricing', to: '/#pricing' },
+  { label: 'Reviews', to: '/#testimonials' },
+  { label: 'Contact', to: '/contact' },
 ]
 
 export default function Navbar() {
@@ -37,7 +39,6 @@ export default function Navbar() {
   useEffect(() => {
     if (location.hash) {
       const id = location.hash.slice(1)
-      // Small delay to wait for DOM to render
       const timer = setTimeout(() => {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }, 100)
@@ -53,11 +54,9 @@ export default function Navbar() {
       const basePath = to.split('#')[0] || '/'
 
       if (location.pathname === basePath || (basePath === '/' && location.pathname === '/')) {
-        // Same page: just scroll
         const el = document.getElementById(hash)
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
       } else {
-        // Different page: navigate with hash
         navigate(basePath + '#' + hash)
       }
     }
@@ -93,18 +92,18 @@ export default function Navbar() {
               whileHover={{ scale: 1.02 }}
               style={{
                 fontFamily: 'Playfair Display, serif',
-                fontSize: 'clamp(1rem, 2.2vw, 1.4rem)',
+                fontSize: 'clamp(1.1rem, 2.2vw, 1.5rem)',
                 fontWeight: 800,
-                letterSpacing: '0.08em',
+                letterSpacing: '0.1em',
                 color: '#fff',
               }}
             >
-              EDITORS <span style={{ color: '#FF351F' }}>BRAND</span>
+              SNAP<span style={{ color: '#FF351F' }}>SHOT</span>
             </motion.span>
           </Link>
 
           {/* Desktop nav */}
-          <nav style={{ display: 'flex', gap: '36px', alignItems: 'center' }}
+          <nav style={{ display: 'flex', gap: '32px', alignItems: 'center' }}
                className="desktop-nav">
             {navLinks.map((link) => (
               <NavLink key={link.label} link={link} onHashClick={handleHashLink} />
@@ -114,12 +113,12 @@ export default function Navbar() {
           {/* CTA + hamburger */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <a
-              href="#booking"
-              onClick={(e) => handleHashLink(e, '#booking')}
+              href="#inquiry"
+              onClick={(e) => handleHashLink(e, '#inquiry')}
               className="btn-primary desktop-cta"
               style={{ padding: '10px 22px', fontSize: '0.75rem' }}
             >
-              Book a Reel Maker
+              Start a Project
             </a>
 
             {/* Hamburger – mobile only */}
@@ -164,78 +163,37 @@ export default function Navbar() {
                 border: 'none',
                 color: '#fff',
                 cursor: 'pointer',
+                padding: '8px',
               }}
             >
               <X size={28} />
             </button>
 
-            {/* Mobile logo */}
-            <div style={{ position: 'absolute', top: '24px', left: '24px' }}>
-              <span style={{
-                fontFamily: 'Playfair Display, serif',
-                fontSize: '1.2rem',
-                fontWeight: 800,
-                letterSpacing: '0.08em',
-                color: '#fff',
-              }}>
-                EDITORS <span style={{ color: '#FF351F' }}>BRAND</span>
-              </span>
-            </div>
-
-            {/* Mobile links */}
-            <nav style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-              alignItems: 'center',
-              width: '100%',
-              padding: '0 24px',
-            }}>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center' }}>
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.label}
-                  initial={{ opacity: 0, y: 24 }}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + i * 0.07, duration: 0.4 }}
-                  style={{ width: '100%', textAlign: 'center' }}
+                  transition={{ delay: i * 0.06 }}
                 >
-                  <Link
-                    to={link.to}
-                    onClick={(e) => {
-                      handleHashLink(e, link.to)
-                      if (!link.to.includes('#')) setMobileOpen(false)
-                    }}
-                    style={{
-                      display: 'block',
-                      fontFamily: 'Playfair Display, serif',
-                      fontSize: 'clamp(2rem, 7vw, 2.8rem)',
-                      fontWeight: 700,
-                      color: '#fff',
-                      textDecoration: 'none',
-                      padding: '10px 0',
-                      transition: 'color 0.2s',
-                    }}
-                    onMouseEnter={e => e.target.style.color = '#FF351F'}
-                    onMouseLeave={e => e.target.style.color = '#fff'}
-                  >
-                    {link.label}
-                  </Link>
+                  <MobileNavLink link={link} onHashClick={handleHashLink} />
                 </motion.div>
               ))}
 
               <motion.div
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                style={{ marginTop: '24px' }}
+                transition={{ delay: 0.4 }}
+                style={{ marginTop: '16px' }}
               >
                 <a
-                  href="#booking"
-                  onClick={(e) => handleHashLink(e, '#booking')}
+                  href="#inquiry"
+                  onClick={(e) => handleHashLink(e, '#inquiry')}
                   className="btn-primary"
-                  style={{ fontSize: '0.85rem' }}
+                  style={{ padding: '12px 32px' }}
                 >
-                  Book a Reel Maker
+                  Start a Project
                 </a>
               </motion.div>
             </nav>
@@ -244,12 +202,9 @@ export default function Navbar() {
       </AnimatePresence>
 
       <style>{`
-        @media (max-width: 1024px) {
-          .desktop-nav { display: none !important; }
+        @media (max-width: 992px) {
+          .desktop-nav, .desktop-cta { display: none !important; }
           .hamburger-btn { display: flex !important; }
-        }
-        @media (max-width: 640px) {
-          .desktop-cta { display: none !important; }
         }
       `}</style>
     </>
@@ -258,27 +213,82 @@ export default function Navbar() {
 
 function NavLink({ link, onHashClick }) {
   const location = useLocation()
-  const isActive = location.pathname === link.to ||
-    (link.to === '/' && location.pathname === '/')
+  const isHash = link.to.includes('#')
+  const isActive = !isHash && location.pathname === link.to
+
+  if (isHash) {
+    return (
+      <a
+        href={link.to}
+        onClick={(e) => onHashClick(e, link.to)}
+        style={{
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '0.8rem',
+          fontWeight: 500,
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+          color: '#A0A0A0',
+          textDecoration: 'none',
+          transition: 'color 0.2s',
+        }}
+        onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+        onMouseLeave={e => e.currentTarget.style.color = '#A0A0A0'}
+      >
+        {link.label}
+      </a>
+    )
+  }
 
   return (
     <Link
       to={link.to}
-      onClick={(e) => onHashClick(e, link.to)}
       style={{
         fontFamily: 'Inter, sans-serif',
         fontSize: '0.8rem',
-        fontWeight: 500,
-        letterSpacing: '0.12em',
+        fontWeight: isActive ? 600 : 500,
+        letterSpacing: '0.05em',
         textTransform: 'uppercase',
-        color: isActive ? '#FF351F' : '#fff',
+        color: isActive ? '#FF351F' : '#A0A0A0',
         textDecoration: 'none',
-        transition: 'color 0.25s',
-        position: 'relative',
-        paddingBottom: '4px',
+        transition: 'color 0.2s',
       }}
-      onMouseEnter={e => e.target.style.color = '#FF351F'}
-      onMouseLeave={e => e.target.style.color = isActive ? '#FF351F' : '#fff'}
+      onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+      onMouseLeave={e => e.currentTarget.style.color = isActive ? '#FF351F' : '#A0A0A0'}
+    >
+      {link.label}
+    </Link>
+  )
+}
+
+function MobileNavLink({ link, onHashClick }) {
+  const isHash = link.to.includes('#')
+
+  if (isHash) {
+    return (
+      <a
+        href={link.to}
+        onClick={(e) => onHashClick(e, link.to)}
+        style={{
+          fontFamily: 'Playfair Display, serif',
+          fontSize: '1.6rem',
+          color: '#fff',
+          textDecoration: 'none',
+        }}
+      >
+        {link.label}
+      </a>
+    )
+  }
+
+  return (
+    <Link
+      to={link.to}
+      style={{
+        fontFamily: 'Playfair Display, serif',
+        fontSize: '1.6rem',
+        color: '#fff',
+        textDecoration: 'none',
+      }}
     >
       {link.label}
     </Link>

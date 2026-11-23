@@ -1,10 +1,10 @@
 const TICKER_ITEMS = [
-  'ENGAGEMENTS', 'HALDI', 'SANGEET', 'BIRTHDAYS',
-  'WEDDINGS', 'CORPORATE EVENTS', 'RECEPTIONS', 'PRE-WEDDING',
+  'INSTAGRAM REELS', 'YOUTUBE SHORTS', 'BRAND COMMERCIALS',
+  'VIDEO EDITING', 'POST-PRODUCTION', 'CORPORATE CONTENT',
+  'MOTION GRAPHICS', 'DIGITAL INVITATIONS', 'PRODUCT SHOOTS',
 ]
 
 export default function EventTicker() {
-  // Duplicate for seamless loop
   const items = [...TICKER_ITEMS, ...TICKER_ITEMS]
 
   return (
@@ -16,7 +16,7 @@ export default function EventTicker() {
         position: 'relative',
         zIndex: 2,
       }}
-      aria-label="Event types ticker"
+      aria-label="Capabilities ticker"
     >
       <div className="ticker-track">
         {items.map((item, i) => (
@@ -36,7 +36,7 @@ export default function EventTicker() {
               paddingLeft: '24px',
             }}
           >
-            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)', flexShrink: 0 }} />
+            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)', flexShrink: 0 }} />
             {item}
           </span>
         ))}

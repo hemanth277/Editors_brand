@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Calendar, Package, Image, Video,
   LogOut, Search, ChevronDown, X, Check, Loader,
-  Upload, Trash2, Users, RefreshCw, AlertCircle
+  Upload, Trash2, Users, RefreshCw, AlertCircle, Briefcase, Plus, FileText
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
@@ -11,18 +11,19 @@ import { useNavigate } from 'react-router-dom'
 
 // ─── Sidebar tabs ─────────────────────────────────────────────
 const TABS = [
-  { id: 'bookings',  label: 'Bookings',   icon: Calendar },
-  { id: 'customers', label: 'Customers',  icon: Users },
-  { id: 'pricing',   label: 'Pricing',    icon: Package },
-  { id: 'portfolio', label: 'Portfolio',  icon: Image },
-  { id: 'videos',    label: 'Videos',     icon: Video },
+  { id: 'inquiries', label: 'Project Inquiries', icon: Briefcase },
+  { id: 'customers', label: 'Clients & Brands',  icon: Users },
+  { id: 'pricing',   label: 'Pricing Packages',  icon: Package },
+  { id: 'portfolio', label: 'Portfolio Media',   icon: Image },
+  { id: 'videos',    label: 'Video Showcase',    icon: Video },
 ]
 
 const STATUS_COLORS = {
-  pending:   { bg: 'rgba(255,200,0,0.1)',   text: '#ffc800', border: 'rgba(255,200,0,0.3)'   },
-  confirmed: { bg: 'rgba(0,200,100,0.1)',   text: '#00c864', border: 'rgba(0,200,100,0.3)'   },
-  completed: { bg: 'rgba(100,100,255,0.1)', text: '#8080ff', border: 'rgba(100,100,255,0.3)' },
-  cancelled: { bg: 'rgba(255,53,31,0.1)',   text: '#FF351F', border: 'rgba(255,53,31,0.3)'   },
+  new:         { bg: 'rgba(255,200,0,0.1)',   text: '#ffc800', border: 'rgba(255,200,0,0.3)'   },
+  contacted:   { bg: 'rgba(0,180,255,0.1)',   text: '#00b4ff', border: 'rgba(0,180,255,0.3)'   },
+  'in progress': { bg: 'rgba(180,100,255,0.1)', text: '#b464ff', border: 'rgba(180,100,255,0.3)' },
+  completed:   { bg: 'rgba(0,200,100,0.1)',   text: '#00c864', border: 'rgba(0,200,100,0.3)'   },
+  cancelled:   { bg: 'rgba(255,53,31,0.1)',   text: '#FF351F', border: 'rgba(255,53,31,0.3)'   },
 }
 
 // ─── Shared styles ────────────────────────────────────────────
@@ -78,16 +79,16 @@ const S = {
 
 // ─── Main Dashboard ───────────────────────────────────────────
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab]   = useState('bookings')
+  const [activeTab, setActiveTab]   = useState('inquiries')
   const [sidebarOpen, setSidebar]   = useState(false)
-  const { signOut, user, isAdmin, loading } = useAuth()
-  const navigate = useNavigate()
+  const { signOut, user, loading }  = useAuth()
+  const navigate                    = useNavigate()
 
   // Show loader while auth state is initializing
   if (loading) {
     return (
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loader size={24} style={{ color: '#FF351F', animation: 'spin 1s linear infinite' }} />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0A0A0A' }}>
+        <Loader size={28} style={{ color: '#FF351F', animation: 'spin 1s linear infinite' }} />
       </div>
     )
   }
@@ -117,7 +118,7 @@ export default function AdminDashboard() {
       <aside
         className={`admin-sidebar${sidebarOpen ? ' open' : ''}`}
         style={{
-          width: '240px',
+          width: '250px',
           background: '#0D0D0D',
           borderRight: '1px solid rgba(255,255,255,0.06)',
           display: 'flex',
@@ -130,10 +131,12 @@ export default function AdminDashboard() {
       >
         {/* Logo */}
         <div style={{ padding: '28px 24px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem', fontWeight: 800, letterSpacing: '0.08em', color: '#fff' }}>
-            EDITORS <span style={{ color: '#FF351F' }}>BRAND</span>
+          <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.25rem', fontWeight: 800, letterSpacing: '0.08em', color: '#fff' }}>
+            SNAP<span style={{ color: '#FF351F' }}>SHOT</span>
           </div>
-          <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A0A0A0', marginTop: '4px' }}>Admin</p>
+          <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A0A0A0', marginTop: '4px' }}>
+            Agency Admin
+          </p>
         </div>
 
         {/* Nav tabs */}
@@ -170,7 +173,9 @@ export default function AdminDashboard() {
 
         {/* User + logout */}
         <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <p style={{ fontSize: '0.75rem', color: '#A0A0A0', marginBottom: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</p>
+          <p style={{ fontSize: '0.75rem', color: '#A0A0A0', marginBottom: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {user?.email}
+          </p>
           <button
             onClick={handleLogout}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#FF351F', cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'Inter, sans-serif', padding: 0 }}
@@ -193,7 +198,7 @@ export default function AdminDashboard() {
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '28px' }}>
-          {activeTab === 'bookings'  && <BookingsTab />}
+          {activeTab === 'inquiries' && <InquiriesTab />}
           {activeTab === 'customers' && <CustomersTab />}
           {activeTab === 'pricing'   && <PricingTab />}
           {activeTab === 'portfolio' && <MediaTab bucket="portfolio-images" mediaType="image" />}
@@ -210,16 +215,16 @@ export default function AdminDashboard() {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  BOOKINGS TAB
+//  PROJECT INQUIRIES TAB (Compatible with 'bookings' table)
 // ══════════════════════════════════════════════════════════════
-function BookingsTab() {
-  const [bookings, setBookings]   = useState([])
-  const [loading,  setLoading]    = useState(true)
-  const [search,   setSearch]     = useState('')
-  const [dateFrom, setDateFrom]   = useState('')
-  const [dateTo,   setDateTo]     = useState('')
-  const [selected, setSelected]   = useState(null)
-  const [updating, setUpdating]   = useState(false)
+function InquiriesTab() {
+  const [inquiries, setInquiries] = useState([])
+  const [loading,   setLoading]   = useState(true)
+  const [search,    setSearch]    = useState('')
+  const [dateFrom,  setDateFrom]  = useState('')
+  const [dateTo,    setDateTo]    = useState('')
+  const [selected,  setSelected]  = useState(null)
+  const [updating,  setUpdating]  = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -232,23 +237,38 @@ function BookingsTab() {
     if (dateTo)   q = q.lte('event_date', dateTo)
 
     const { data, error } = await q
-    if (!error) setBookings(data || [])
+    if (!error) setInquiries(data || [])
     setLoading(false)
   }
 
   useEffect(() => { load() }, [dateFrom, dateTo])
 
-  const filtered = bookings.filter(b =>
-    !search || [b.full_name, b.email, b.phone, b.event_type, b.location, b.package_name]
+  // Normalise status for agency view
+  const normaliseStatus = (s) => {
+    if (!s) return 'new'
+    const lower = s.toLowerCase()
+    if (lower === 'pending') return 'new'
+    if (lower === 'confirmed') return 'contacted'
+    return lower
+  }
+
+  const filtered = inquiries.filter(b =>
+    !search || [b.full_name, b.email, b.phone, b.event_type, b.location, b.package_name, b.requirements]
       .some(v => v?.toLowerCase().includes(search.toLowerCase()))
   )
 
   const updateStatus = async (id, status) => {
     setUpdating(true)
-    const { error } = await supabase.from('bookings').update({ status }).eq('id', id)
+    // Map agency status to database safe status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+    let dbStatus = status
+    if (status === 'new') dbStatus = 'pending'
+    if (status === 'contacted') dbStatus = 'confirmed'
+    if (status === 'in progress') dbStatus = 'confirmed'
+
+    const { error } = await supabase.from('bookings').update({ status: dbStatus }).eq('id', id)
     if (!error) {
-      setBookings(bs => bs.map(b => b.id === id ? { ...b, status } : b))
-      if (selected?.id === id) setSelected(s => ({ ...s, status }))
+      setInquiries(bs => bs.map(b => b.id === id ? { ...b, status: dbStatus } : b))
+      if (selected?.id === id) setSelected(s => ({ ...s, status: dbStatus }))
     }
     setUpdating(false)
   }
@@ -261,19 +281,19 @@ function BookingsTab() {
     <div>
       {/* Filters */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '24px', alignItems: 'flex-end' }}>
-        <div style={{ flex: '1 1 220px' }}>
-          <label style={S.label}>Search</label>
+        <div style={{ flex: '1 1 240px' }}>
+          <label style={S.label}>Search Inquiries</label>
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#A0A0A0' }} />
-            <input style={{ ...S.input, paddingLeft: '36px' }} placeholder="Name, email, phone, event…" value={search} onChange={e => setSearch(e.target.value)} />
+            <input style={{ ...S.input, paddingLeft: '36px' }} placeholder="Client, brand, format, package…" value={search} onChange={e => setSearch(e.target.value)} />
           </div>
         </div>
         <div style={{ flex: '0 0 160px' }}>
-          <label style={S.label}>Date From</label>
+          <label style={S.label}>Target Date From</label>
           <input type="date" style={{ ...S.input, colorScheme: 'dark' }} value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
         </div>
         <div style={{ flex: '0 0 160px' }}>
-          <label style={S.label}>Date To</label>
+          <label style={S.label}>Target Date To</label>
           <input type="date" style={{ ...S.input, colorScheme: 'dark' }} value={dateTo} onChange={e => setDateTo(e.target.value)} />
         </div>
         <button onClick={load} style={{ ...S.input, width: 'auto', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '10px 16px', flexShrink: 0 }}>
@@ -281,14 +301,15 @@ function BookingsTab() {
         </button>
       </div>
 
-      {/* Stats */}
+      {/* Stats summary */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
-        {Object.entries(STATUS_COLORS).map(([status, colors]) => {
-          const count = bookings.filter(b => b.status === status).length
+        {['new', 'contacted', 'in progress', 'completed', 'cancelled'].map(st => {
+          const colors = STATUS_COLORS[st]
+          const count = inquiries.filter(b => normaliseStatus(b.status) === st).length
           return (
-            <div key={status} style={{ ...S.card, padding: '16px 20px', flex: '1 1 100px', textAlign: 'center' }}>
+            <div key={st} style={{ ...S.card, padding: '16px 20px', flex: '1 1 120px', textAlign: 'center' }}>
               <div style={{ fontSize: '1.6rem', fontFamily: 'Playfair Display, serif', fontWeight: 700, color: colors.text }}>{count}</div>
-              <div style={{ fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#A0A0A0', marginTop: '4px' }}>{status}</div>
+              <div style={{ fontSize: '0.68rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#A0A0A0', marginTop: '4px' }}>{st}</div>
             </div>
           )
         })}
@@ -299,31 +320,32 @@ function BookingsTab() {
         {loading ? (
           <div style={{ padding: '48px', textAlign: 'center' }}><Loader size={24} style={{ color: '#FF351F', animation: 'spin 1s linear infinite' }} /></div>
         ) : filtered.length === 0 ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#A0A0A0', fontSize: '0.9rem' }}>No bookings found.</div>
+          <div style={{ padding: '48px', textAlign: 'center', color: '#A0A0A0', fontSize: '0.9rem' }}>No project inquiries found.</div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '850px' }}>
             <thead>
               <tr>
-                {['Name', 'Event', 'Date', 'Package', 'Status', 'Created', ''].map(h => (
+                {['Client / Brand', 'Content Format', 'Target Date', 'Package', 'Status', 'Submitted', ''].map(h => (
                   <th key={h} style={S.th}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.map(b => {
-                const sc = STATUS_COLORS[b.status] || STATUS_COLORS.pending
+                const norm = normaliseStatus(b.status)
+                const sc = STATUS_COLORS[norm] || STATUS_COLORS.new
                 return (
                   <tr key={b.id} style={{ cursor: 'pointer' }} onClick={() => setSelected(b)}>
                     <td style={S.td}>
-                      <div style={{ fontWeight: 500 }}>{b.full_name}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#A0A0A0' }}>{b.email}</div>
+                      <div style={{ fontWeight: 600 }}>{b.full_name}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#A0A0A0' }}>{b.email} · {b.location !== 'Digital / Remote Project' ? b.location : b.phone}</div>
                     </td>
                     <td style={S.td}>{b.event_type}</td>
                     <td style={S.td}>{b.event_date}</td>
                     <td style={S.td}>{b.package_name}</td>
                     <td style={S.td}>
                       <span style={{ background: sc.bg, color: sc.text, border: `1px solid ${sc.border}`, borderRadius: '20px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize' }}>
-                        {b.status}
+                        {norm}
                       </span>
                     </td>
                     <td style={{ ...S.td, fontSize: '0.75rem', color: '#A0A0A0' }}>{new Date(b.created_at).toLocaleDateString('en-IN')}</td>
@@ -339,8 +361,9 @@ function BookingsTab() {
       {/* Detail drawer */}
       <AnimatePresence>
         {selected && (
-          <BookingDetail
-            booking={selected}
+          <InquiryDetail
+            inquiry={selected}
+            normaliseStatus={normaliseStatus}
             onClose={() => setSelected(null)}
             onStatusChange={updateStatus}
             onNotesChange={updateNotes}
@@ -352,9 +375,9 @@ function BookingsTab() {
   )
 }
 
-function BookingDetail({ booking, onClose, onStatusChange, onNotesChange, updating }) {
-  const [notes, setNotes] = useState(booking.admin_notes || '')
-  const sc = STATUS_COLORS[booking.status] || STATUS_COLORS.pending
+function InquiryDetail({ inquiry, normaliseStatus, onClose, onStatusChange, onNotesChange, updating }) {
+  const [notes, setNotes] = useState(inquiry.admin_notes || '')
+  const norm = normaliseStatus(inquiry.status)
 
   return (
     <motion.div
@@ -370,41 +393,43 @@ function BookingDetail({ booking, onClose, onStatusChange, onNotesChange, updati
         exit={{ x: '100%' }}
         transition={{ type: 'spring', stiffness: 260, damping: 30 }}
         onClick={e => e.stopPropagation()}
-        style={{ width: '100%', maxWidth: '480px', height: '100vh', background: '#151515', borderLeft: '1px solid rgba(255,255,255,0.08)', overflowY: 'auto', padding: '28px' }}
+        style={{ width: '100%', maxWidth: '520px', height: '100vh', background: '#151515', borderLeft: '1px solid rgba(255,255,255,0.08)', overflowY: 'auto', padding: '28px' }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
-          <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', fontWeight: 700, color: '#fff' }}>Booking Detail</h3>
+          <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.25rem', fontWeight: 700, color: '#fff' }}>Project Inquiry Details</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#A0A0A0', cursor: 'pointer' }}><X size={20} /></button>
         </div>
 
         {/* Fields */}
         {[
-          ['Name',       booking.full_name],
-          ['Phone',      booking.phone],
-          ['Email',      booking.email],
-          ['Event Type', booking.event_type],
-          ['Event Date', booking.event_date],
-          ['Location',   booking.location],
-          ['Package',    booking.package_name],
-          ['Requirements', booking.requirements || '—'],
+          ['Client Name',       inquiry.full_name],
+          ['Phone / WhatsApp',  inquiry.phone],
+          ['Email Address',     inquiry.email],
+          ['Content Format',    inquiry.event_type],
+          ['Brand / Location',  inquiry.location],
+          ['Target Date',       inquiry.event_date],
+          ['Chosen Package',    inquiry.package_name],
+          ['Scope & Details',   inquiry.requirements || '—'],
         ].map(([k, v]) => (
           <div key={k} style={{ marginBottom: '16px' }}>
             <div style={{ fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A0A0A0', marginBottom: '4px' }}>{k}</div>
-            <div style={{ fontSize: '0.9rem', color: '#fff' }}>{v}</div>
+            <div style={{ fontSize: '0.9rem', color: '#fff', wordBreak: 'break-word', lineHeight: 1.5 }}>{v}</div>
           </div>
         ))}
 
-        {/* Status */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A0A0A0', display: 'block', marginBottom: '8px' }}>Update Status</label>
+        {/* Status updates */}
+        <div style={{ marginBottom: '24px', marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
+          <label style={{ fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A0A0A0', display: 'block', marginBottom: '10px' }}>
+            Update Project Status
+          </label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {Object.keys(STATUS_COLORS).map(s => {
+            {['new', 'contacted', 'in progress', 'completed', 'cancelled'].map(s => {
               const c = STATUS_COLORS[s]
-              const active = booking.status === s
+              const active = norm === s
               return (
                 <button
                   key={s}
-                  onClick={() => onStatusChange(booking.id, s)}
+                  onClick={() => onStatusChange(inquiry.id, s)}
                   disabled={updating || active}
                   style={{
                     padding: '7px 14px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize', cursor: active ? 'default' : 'pointer', fontFamily: 'Inter, sans-serif',
@@ -424,15 +449,17 @@ function BookingDetail({ booking, onClose, onStatusChange, onNotesChange, updati
 
         {/* Notes */}
         <div>
-          <label style={{ fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A0A0A0', display: 'block', marginBottom: '8px' }}>Admin Notes</label>
+          <label style={{ fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A0A0A0', display: 'block', marginBottom: '8px' }}>
+            Internal Agency Notes
+          </label>
           <textarea
             value={notes}
             onChange={e => setNotes(e.target.value)}
-            onBlur={() => onNotesChange(booking.id, notes)}
-            style={{ ...S.input, minHeight: '100px', resize: 'vertical' }}
-            placeholder="Internal notes..."
+            onBlur={() => onNotesChange(inquiry.id, notes)}
+            style={{ ...S.input, minHeight: '120px', resize: 'vertical' }}
+            placeholder="Add internal notes on brief, budget, script concepts..."
           />
-          <p style={{ fontSize: '0.7rem', color: '#A0A0A0', marginTop: '4px' }}>Auto-saved on blur</p>
+          <p style={{ fontSize: '0.7rem', color: '#A0A0A0', marginTop: '4px' }}>Auto-saved when clicking outside</p>
         </div>
       </motion.div>
     </motion.div>
@@ -440,7 +467,7 @@ function BookingDetail({ booking, onClose, onStatusChange, onNotesChange, updati
 }
 
 // ══════════════════════════════════════════════════════════════
-//  CUSTOMERS TAB
+//  CLIENTS & BRANDS TAB
 // ══════════════════════════════════════════════════════════════
 function CustomersTab() {
   const [customers, setCustomers] = useState([])
@@ -459,18 +486,18 @@ function CustomersTab() {
   return (
     <div>
       <div style={{ marginBottom: '20px' }}>
-        <label style={S.label}>Search Customers</label>
-        <div style={{ position: 'relative', maxWidth: '360px' }}>
+        <label style={S.label}>Search Client Database</label>
+        <div style={{ position: 'relative', maxWidth: '380px' }}>
           <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#A0A0A0' }} />
-          <input style={{ ...S.input, paddingLeft: '36px' }} placeholder="Name, email, phone…" value={search} onChange={e => setSearch(e.target.value)} />
+          <input style={{ ...S.input, paddingLeft: '36px' }} placeholder="Name, brand email, phone…" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
       </div>
       <div style={{ ...S.card, padding: 0, overflowX: 'auto' }}>
         {loading ? (
           <div style={{ padding: '48px', textAlign: 'center' }}><Loader size={24} style={{ color: '#FF351F', animation: 'spin 1s linear infinite' }} /></div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '500px' }}>
-            <thead><tr>{['Name', 'Email', 'Phone', 'Joined'].map(h => <th key={h} style={S.th}>{h}</th>)}</tr></thead>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+            <thead><tr>{['Client / Contact', 'Email', 'Phone', 'Created'].map(h => <th key={h} style={S.th}>{h}</th>)}</tr></thead>
             <tbody>
               {filtered.map(c => (
                 <tr key={c.id}>
@@ -489,7 +516,7 @@ function CustomersTab() {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  PRICING TAB
+//  PRICING PACKAGES TAB
 // ══════════════════════════════════════════════════════════════
 function PricingTab() {
   const [packages, setPackages] = useState([])
@@ -514,7 +541,7 @@ function PricingTab() {
     }).eq('id', pkg.id)
     setSaving(false)
     if (error) { setMsg('Error: ' + error.message) }
-    else { setMsg('Saved!'); setEditing(null); load() }
+    else { setMsg('Saved successfully!'); setEditing(null); load() }
   }
 
   if (loading) return <div style={{ textAlign: 'center', padding: '48px' }}><Loader size={24} style={{ color: '#FF351F', animation: 'spin 1s linear infinite' }} /></div>
@@ -531,12 +558,17 @@ function PricingTab() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
                   <span style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#FF351F', fontWeight: 700 }}>{pkg.code}</span>
-                  <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', color: '#fff', margin: '4px 0 2px' }}>{pkg.name}</h3>
+                  <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.25rem', color: '#fff', margin: '4px 0 2px' }}>{pkg.name}</h3>
                   <p style={{ fontSize: '0.8rem', color: '#A0A0A0' }}>{pkg.duration}</p>
                   <p style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.6rem', color: '#fff', fontWeight: 700, marginTop: '8px' }}>₹{Number(pkg.price).toLocaleString('en-IN')}</p>
+                  <ul style={{ marginTop: '12px', listStyle: 'none', padding: 0 }}>
+                    {(pkg.features || []).map((f, fi) => (
+                      <li key={fi} style={{ fontSize: '0.8rem', color: '#888', marginBottom: '4px' }}>• {f}</li>
+                    ))}
+                  </ul>
                 </div>
                 <button onClick={() => setEditing({ ...pkg })} style={{ background: 'rgba(255,53,31,0.1)', border: '1px solid rgba(255,53,31,0.3)', color: '#FF351F', padding: '8px 20px', borderRadius: '2px', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', fontWeight: 600 }}>
-                  Edit
+                  Edit Package
                 </button>
               </div>
             )}
@@ -555,13 +587,13 @@ function PricingEditor({ pkg, onChange, onSave, onCancel, saving }) {
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-        <div><label style={S.label}>Name</label><input style={S.input} value={pkg.name} onChange={e => setField('name', e.target.value)} /></div>
+        <div><label style={S.label}>Package Name</label><input style={S.input} value={pkg.name} onChange={e => setField('name', e.target.value)} /></div>
         <div><label style={S.label}>Price (₹)</label><input style={S.input} type="number" value={pkg.price} onChange={e => setField('price', e.target.value)} /></div>
-        <div><label style={S.label}>Duration</label><input style={S.input} value={pkg.duration} onChange={e => setField('duration', e.target.value)} /></div>
+        <div><label style={S.label}>Duration / Format</label><input style={S.input} value={pkg.duration} onChange={e => setField('duration', e.target.value)} /></div>
         <div><label style={S.label}>Badge (optional)</label><input style={S.input} value={pkg.badge || ''} onChange={e => setField('badge', e.target.value)} placeholder="e.g. Most Popular" /></div>
       </div>
       <div style={{ marginBottom: '16px' }}>
-        <label style={S.label}>Features</label>
+        <label style={S.label}>Deliverables & Features</label>
         {pkg.features.map((f, i) => (
           <input key={i} style={{ ...S.input, marginBottom: '8px' }} value={f} onChange={e => setFeature(i, e.target.value)} />
         ))}
@@ -630,10 +662,10 @@ function MediaTab({ bucket, mediaType }) {
       <div style={{ ...S.card, marginBottom: '24px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>
-            Upload {mediaType === 'image' ? 'Images' : 'Videos'}
+            Upload Agency {mediaType === 'image' ? 'Images' : 'Videos'}
           </div>
           <p style={{ fontSize: '0.8rem', color: '#A0A0A0' }}>
-            {mediaType === 'image' ? 'JPG, PNG, WebP — max 50 MB each' : 'MP4, MOV, WebM — max 500 MB each'}
+            {mediaType === 'image' ? 'JPG, PNG, WebP — max 50 MB each' : 'MP4, MOV, WebM vertical reels — max 500 MB each'}
           </p>
         </div>
         <input ref={fileRef} type="file" accept={mediaType === 'image' ? 'image/*' : 'video/*'} multiple onChange={upload} style={{ display: 'none' }} />

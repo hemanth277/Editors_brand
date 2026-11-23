@@ -17,7 +17,7 @@ export default function EventGallery() {
 
   return (
     <section
-      id="events"
+      id="portfolio-categories"
       style={{ background: '#0A0A0A', padding: 'clamp(60px, 8vh, 100px) 0' }}
     >
       <div className="container-snap">
@@ -42,16 +42,15 @@ export default function EventGallery() {
             gap: '12px',
           }}>
             <span style={{ width: '32px', height: '1px', background: '#FF351F', display: 'inline-block' }} />
-            Browse By Category
+            Content Showcase
           </p>
-          <h2 className="heading-lg" style={{ color: '#fff', maxWidth: '600px' }}>
-            Events we
-            <br />
-            <em style={{ color: '#FF351F', fontStyle: 'italic' }}>love to shoot.</em>
+          <h2 className="heading-lg" style={{ color: '#fff', maxWidth: '700px' }}>
+            Formats engineered for{' '}
+            <em style={{ color: '#FF351F', fontStyle: 'italic' }}>maximum impact.</em>
           </h2>
         </motion.div>
 
-        {/* Grid – desktop masonry-style, mobile 2-col */}
+        {/* Grid – responsive agency grid */}
         <motion.div
           variants={container}
           initial="hidden"
@@ -59,8 +58,7 @@ export default function EventGallery() {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
-            gridTemplateRows: 'auto',
-            gap: '12px',
+            gap: '14px',
           }}
           className="event-grid"
         >
@@ -73,10 +71,14 @@ export default function EventGallery() {
                 position: 'relative',
                 overflow: 'hidden',
                 cursor: 'pointer',
-                borderRadius: '2px',
+                borderRadius: '4px',
+                border: '1px solid rgba(255,255,255,0.06)',
                 gridRow: i === 0 ? 'span 2' : 'span 1',
                 aspectRatio: i === 0 ? 'auto' : '4/5',
-                minHeight: i === 0 ? '400px' : '220px',
+                minHeight: i === 0 ? '420px' : '230px',
+              }}
+              onClick={() => {
+                document.getElementById('inquiry')?.scrollIntoView({ behavior: 'smooth' })
               }}
             >
               <img
@@ -96,7 +98,7 @@ export default function EventGallery() {
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.1) 60%)',
+                background: 'linear-gradient(to top, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.2) 60%)',
                 transition: 'opacity 0.3s',
               }} />
               {/* Text */}
@@ -105,7 +107,7 @@ export default function EventGallery() {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                padding: '20px',
+                padding: '22px',
               }}>
                 <div style={{
                   fontFamily: 'Inter, sans-serif',
@@ -114,13 +116,13 @@ export default function EventGallery() {
                   letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: '#FF351F',
-                  marginBottom: '4px',
+                  marginBottom: '6px',
                 }}>
                   {cat.count}
                 </div>
                 <div style={{
                   fontFamily: 'Playfair Display, serif',
-                  fontSize: 'clamp(1rem, 2vw, 1.3rem)',
+                  fontSize: 'clamp(1.05rem, 2vw, 1.35rem)',
                   fontWeight: 700,
                   color: '#fff',
                 }}>
@@ -142,20 +144,23 @@ export default function EventGallery() {
         @media (max-width: 768px) {
           .event-grid {
             grid-template-columns: repeat(2, 1fr) !important;
-            gap: 8px !important;
+            gap: 10px !important;
           }
           .event-card,
           .event-card-tall {
             grid-row: span 1 !important;
-            min-height: 180px !important;
+            min-height: 190px !important;
             aspect-ratio: 3/4 !important;
           }
         }
-        @media (max-width: 380px) {
+        @media (max-width: 420px) {
+          .event-grid {
+            grid-template-columns: 1fr !important;
+          }
           .event-card,
           .event-card-tall {
-            min-height: 150px !important;
-            aspect-ratio: 1 !important;
+            min-height: 220px !important;
+            aspect-ratio: 16/9 !important;
           }
         }
       `}</style>

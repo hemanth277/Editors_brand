@@ -31,13 +31,23 @@ export default function LoadingScreen() {
       >
         <span style={{
           fontFamily: 'Playfair Display, serif',
-          fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+          fontSize: 'clamp(1.6rem, 4vw, 2.6rem)',
           fontWeight: 800,
-          letterSpacing: '0.1em',
+          letterSpacing: '0.12em',
           color: '#fff'
         }}>
-          EDITORS <span style={{ color: '#FF351F' }}>BRAND</span>
+          SNAP<span style={{ color: '#FF351F' }}>SHOT</span>
         </span>
+        <p style={{
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '0.7rem',
+          letterSpacing: '0.25em',
+          textTransform: 'uppercase',
+          color: '#A0A0A0',
+          marginTop: '6px'
+        }}>
+          Content Creation Agency
+        </p>
       </motion.div>
 
       {/* Progress bar */}
@@ -51,30 +61,15 @@ export default function LoadingScreen() {
         <motion.div
           style={{
             position: 'absolute',
-            top: 0,
             left: 0,
-            height: '100%',
+            top: 0,
+            bottom: 0,
+            width: `${progress}%`,
             background: '#FF351F',
-            width: `${Math.min(progress, 100)}%`,
+            transition: 'width 0.1s linear'
           }}
-          transition={{ ease: 'easeOut' }}
         />
       </div>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.5 }}
-        transition={{ delay: 0.3 }}
-        style={{
-          fontFamily: 'Inter, sans-serif',
-          fontSize: '0.7rem',
-          letterSpacing: '0.3em',
-          textTransform: 'uppercase',
-          color: '#A0A0A0'
-        }}
-      >
-        Loading Experience
-      </motion.p>
     </motion.div>
   )
 }

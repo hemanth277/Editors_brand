@@ -1,39 +1,39 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import {
-  Sparkles, Users, Zap, Film, Heart, Share2,
+  Sparkles, Video, Zap, Layers, BarChart3, Film, CheckCircle2, ArrowRight
 } from 'lucide-react'
 
-const reasons = [
+const features = [
   {
-    icon: Sparkles,
-    title: 'Creative Storytelling',
-    description: 'Every reel tells a unique story. We approach each event with fresh creative vision, not templated shoots.',
-  },
-  {
-    icon: Users,
-    title: 'Professional Reel Makers',
-    description: 'Trained videographers who specialize in social-first content — not just photographers who shoot video.',
-  },
-  {
-    icon: Zap,
-    title: 'Fast Delivery',
-    description: 'Standard delivery in 5–7 days. Express delivery available. No waiting weeks for your memories.',
+    icon: Video,
+    title: 'Short-Form Mastery',
+    description: 'Hook-driven, high-retention 9:16 vertical videos crafted specifically for Instagram Reels, YouTube Shorts, and TikTok algorithms.',
   },
   {
     icon: Film,
-    title: 'High-Quality Production',
-    description: 'Shot on premium equipment with professional color grading and cinematic editing techniques.',
+    title: 'Cinematic Storytelling',
+    description: 'We blend commercial cinematography with strategic brand messaging so your business doesn’t just make noise—it leaves an impression.',
   },
   {
-    icon: Heart,
-    title: 'Personalized Experience',
-    description: 'We work closely with you to understand your style, preferences, and vision before the event.',
+    icon: Layers,
+    title: 'End-to-End Post-Production',
+    description: 'Dynamic typography, color grading, sound design, sound effects (SFX), and seamless pacing optimized for modern viewers.',
   },
   {
-    icon: Share2,
-    title: 'Social Media Ready',
-    description: 'Vertical 9:16 format, optimized for Instagram Reels, YouTube Shorts, and all major platforms.',
+    icon: Zap,
+    title: 'Agile & Fast Turnaround',
+    description: 'Speed wins in social media. We deliver ready-to-post high-definition content within 48 to 72 hours of production.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Performance & Growth Focus',
+    description: 'Every reel, short, and commercial is architected with clear visual hooks and conversion CTAs to turn viewers into paying customers.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Bespoke Invitations & Teasers',
+    description: 'High-end motion invitation suites and luxury product teasers with tailored 3D typography and sound design.',
   },
 ]
 
@@ -45,9 +45,11 @@ export default function WhySnapshot() {
     <section
       id="about"
       style={{
-        background: '#F4F1EC',
+        background: '#0D0D0D',
         padding: 'clamp(60px, 8vh, 100px) 0',
-        color: '#111',
+        color: '#fff',
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}
     >
       <div className="container-snap">
@@ -61,7 +63,7 @@ export default function WhySnapshot() {
           className="why-layout"
           ref={ref}
         >
-          {/* Left – sticky heading */}
+          {/* Left – sticky intro */}
           <motion.div
             initial={{ opacity: 0, x: -32 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
@@ -82,116 +84,112 @@ export default function WhySnapshot() {
               gap: '12px',
             }}>
               <span style={{ width: '32px', height: '1px', background: '#FF351F', display: 'inline-block' }} />
-              Why Us
+              About SNAPSHOT
             </p>
-            <h2
-              style={{
-                fontFamily: 'Playfair Display, serif',
-                fontSize: 'clamp(2rem, 4vw, 3.5rem)',
-                fontWeight: 800,
-                lineHeight: 1.1,
-                color: '#111',
-                marginBottom: '24px',
-              }}
-            >
-              Moments fade.
-              <br />
-              <em style={{ color: '#FF351F', fontStyle: 'italic' }}>Stories stay.</em>
+
+            <h2 style={{
+              fontFamily: 'Playfair Display, serif',
+              fontSize: 'clamp(2rem, 4vw, 3.8rem)',
+              fontWeight: 800,
+              lineHeight: 1.1,
+              color: '#fff',
+              marginBottom: '24px',
+            }}>
+              A creative content studio built for{' '}
+              <em style={{ color: '#FF351F', fontStyle: 'italic' }}>modern brands.</em>
             </h2>
+
             <p style={{
               fontFamily: 'Inter, sans-serif',
               fontSize: '0.95rem',
-              color: '#555',
-              lineHeight: 1.75,
-              maxWidth: '400px',
+              color: '#A0A0A0',
+              lineHeight: 1.8,
+              marginBottom: '24px',
             }}>
-              We built EDITORS BRAND because we believe every celebration deserves
-              a story worth telling — and retelling. Here's why over 500
-              families trust us with their most precious moments.
+              SNAPSHOT is a digital content creation agency and production studio. We partner with forward-thinking businesses, personal brands, founders, and creators to engineer compelling digital video content.
             </p>
 
-            {/* Numbers */}
-            <div style={{
-              marginTop: '40px',
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '24px',
+            <p style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '0.95rem',
+              color: '#A0A0A0',
+              lineHeight: 1.8,
+              marginBottom: '36px',
             }}>
-              {[
-                { n: '500+', l: 'Events Covered' },
-                { n: '1200+', l: 'Reels Delivered' },
-                { n: '5+', l: 'Years Experience' },
-                { n: '98%', l: 'Client Satisfaction' },
-              ].map(s => (
-                <div key={s.l}>
-                  <div style={{
-                    fontFamily: 'Playfair Display, serif',
-                    fontSize: '2rem',
-                    fontWeight: 800,
-                    color: '#111',
-                    lineHeight: 1,
-                  }}>{s.n}</div>
-                  <div style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: '0.75rem',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    color: '#888',
-                    marginTop: '4px',
-                  }}>{s.l}</div>
-                </div>
-              ))}
-            </div>
+              From concept development and scripting to commercial shooting, elite video editing, and motion teasers—we craft high-converting visual stories that amplify your market presence.
+            </p>
+
+            <a
+              href="#inquiry"
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById('inquiry')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+              className="btn-primary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+            >
+              Start Your Project <ArrowRight size={16} />
+            </a>
           </motion.div>
 
-          {/* Right – feature list */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-            {reasons.map((r, i) => {
-              const Icon = r.icon
+          {/* Right – feature cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {features.map((f, i) => {
+              const Icon = f.icon
               return (
                 <motion.div
-                  key={r.title}
+                  key={f.title}
                   initial={{ opacity: 0, y: 24 }}
                   animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
                   style={{
-                    padding: '28px 0',
-                    borderBottom: '1px solid rgba(0,0,0,0.08)',
+                    background: '#151515',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '4px',
+                    padding: 'clamp(20px, 3vw, 28px)',
                     display: 'flex',
                     gap: '20px',
                     alignItems: 'flex-start',
+                    transition: 'border-color 0.3s, transform 0.3s',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = 'rgba(255,53,31,0.4)'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+                    e.currentTarget.style.transform = 'translateY(0)'
                   }}
                 >
                   <div style={{
                     width: '44px',
                     height: '44px',
-                    borderRadius: '50%',
-                    background: 'rgba(255,53,31,0.1)',
-                    border: '1px solid rgba(255,53,31,0.2)',
+                    borderRadius: '8px',
+                    background: 'rgba(255,53,31,0.12)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    <Icon size={18} style={{ color: '#FF351F' }} />
+                    <Icon size={20} style={{ color: '#FF351F' }} />
                   </div>
                   <div>
                     <h3 style={{
                       fontFamily: 'Playfair Display, serif',
-                      fontSize: '1.1rem',
+                      fontSize: '1.15rem',
                       fontWeight: 700,
-                      color: '#111',
-                      marginBottom: '6px',
+                      color: '#fff',
+                      marginBottom: '8px',
                     }}>
-                      {r.title}
+                      {f.title}
                     </h3>
                     <p style={{
                       fontFamily: 'Inter, sans-serif',
-                      fontSize: '0.875rem',
-                      color: '#666',
-                      lineHeight: 1.65,
+                      fontSize: '0.85rem',
+                      color: '#A0A0A0',
+                      lineHeight: 1.6,
                     }}>
-                      {r.description}
+                      {f.description}
                     </p>
                   </div>
                 </motion.div>
@@ -202,8 +200,8 @@ export default function WhySnapshot() {
       </div>
 
       <style>{`
-        @media (max-width: 768px) {
-          .why-layout { grid-template-columns: 1fr !important; }
+        @media (max-width: 900px) {
+          .why-layout { grid-template-columns: 1fr !important; gap: 40px !important; }
           .why-sticky { position: static !important; }
         }
       `}</style>

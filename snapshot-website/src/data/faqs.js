@@ -1,50 +1,38 @@
 export const faqs = [
   {
     id: 1,
-    question: "What exactly is a Reel Maker?",
+    question: "What types of content does SNAPSHOT specialize in?",
     answer:
-      "A Reel Maker is a professional videographer specialized in creating short-form vertical video content optimized for Instagram Reels, YouTube Shorts, and other social media platforms. They capture your event moments and edit them into engaging, shareable reels that tell your story.",
+      "SNAPSHOT is a full-service creative content studio and digital agency. We specialize in vertical video content (Instagram Reels, YouTube Shorts, TikTok), cinematic brand commercials, corporate communications, expert video editing, product showcase photography, and animated digital invitations.",
   },
   {
     id: 2,
-    question: "How can I book a Reel Maker?",
+    question: "How does the project process work from concept to delivery?",
     answer:
-      "Booking is simple! Choose a package that suits your event, fill in the booking form with your event details, and our team will confirm your booking within 24 hours. You can also reach us directly via phone or email.",
+      "Our four-stage process is simple and collaborative: 1. Understand Your Brand (goals, audience, hooks), 2. Plan the Content (scripting, storyboarding, shot lists), 3. Shoot and Create (studio or on-location production), 4. Edit and Deliver (sound design, color grading, animated captions, and platform-ready deliverables).",
   },
   {
     id: 3,
-    question: "What types of events do you cover?",
+    question: "Can we hire SNAPSHOT only for Video Editing if we have raw footage?",
     answer:
-      "We cover a wide range of events including Weddings, Engagements, Haldi & Mehendi ceremonies, Sangeet & Receptions, Birthdays, Pre-Wedding shoots, and Corporate Events. If your event type isn't listed, contact us — we love unique projects!",
+      "Yes! Our post-production team works with raw footage from businesses, creators, and agencies worldwide. We transform raw clips into high-retention, polished videos with captions, b-roll integration, custom animations, and sound effects.",
   },
   {
     id: 4,
-    question: "Where do you provide your services?",
+    question: "What is your typical turnaround time for deliverables?",
     answer:
-      "We currently operate across major cities in India. Our team can travel to any location within India for your event. Travel charges may apply for destinations outside our standard service area — please contact us for a custom quote.",
+      "Standard edits and short-form batches take between 48 to 72 hours following the shoot or raw asset handover. Full brand commercial campaigns typically deliver within 5–7 business days. 24-hour rush turnaround is also available upon request.",
   },
   {
     id: 5,
-    question: "How many edited reels will I receive?",
+    question: "Can SNAPSHOT handle on-location commercial shoots across India?",
     answer:
-      "The number of edited reels depends on your chosen package. The Half Day Plan includes highlight reels, the Full Day Plan includes multiple edited reels, and the Premium Plan includes multiple highlight reels with customized deliverables. You can also purchase additional reels as an add-on.",
+      "Yes, our crew and creative directors travel to shoot on-site for offices, restaurants, fitness clubs, factories, fashion shoots, and product launches across major hubs in India.",
   },
   {
     id: 6,
-    question: "When will I receive my videos?",
+    question: "Are your packages customizable for ongoing monthly retainers?",
     answer:
-      "Standard delivery takes 5–7 business days after your event. If you need your reels faster, our Express Delivery add-on ensures priority editing and delivery within 48–72 hours.",
-  },
-  {
-    id: 7,
-    question: "Can I customize my package?",
-    answer:
-      "Absolutely! All our packages are flexible and can be tailored to your specific requirements. Our team will work with you to create a personalized plan that fits your event, style, and budget.",
-  },
-  {
-    id: 8,
-    question: "Are additional hours available?",
-    answer:
-      "Yes! You can extend any package by adding extra coverage hours at ₹1,250 per hour. This can be arranged during booking or on the day of the event, subject to availability.",
+      "Absolutely. While we offer structured starter and brand packages, most of our ongoing client partners work on custom monthly content retainers tailored to their posting schedule and content cadence.",
   },
 ];

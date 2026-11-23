@@ -1,25 +1,66 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-// ─── Centralized hook: fetches pricing_packages from Supabase ──
-// Falls back to static data if Supabase is unavailable.
-// Subscribes to Realtime so price changes are reflected immediately.
-
 const STATIC_FALLBACK = [
   {
-    id: 1, code: 'PACKAGE 01', name: 'Half Day Plan', price: 4999,
-    duration: 'Up to 4 Hours', badge: null,
-    features: ['Up to 4 hours of coverage', 'One professional Reel Maker', 'Vertical video shooting', 'Edited highlight reels', 'Digital delivery'],
+    id: 1,
+    code: 'PACKAGE 01',
+    name: 'Starter Content Package',
+    price: 9999,
+    duration: 'Monthly / Per Campaign',
+    badge: null,
+    features: [
+      '4 High-Retention Reels / Shorts',
+      'Concept Ideation & Script Hook Assistance',
+      'Dynamic Captions & Motion Graphics',
+      'Professional Sound Design & Color Grade',
+      '2 Revision Rounds & 48-Hour Delivery',
+    ],
   },
   {
-    id: 2, code: 'PACKAGE 02', name: 'Full Day Plan', price: 8999,
-    duration: 'Up to 8 Hours', badge: 'Most Popular',
-    features: ['Up to 8 hours of coverage', 'Professional event coverage', 'Multiple edited reels', 'Candid moments', 'Digital delivery'],
+    id: 2,
+    code: 'PACKAGE 02',
+    name: 'Professional Content Package',
+    price: 19999,
+    duration: 'Bi-Weekly / Growth Plan',
+    badge: 'Most Popular',
+    features: [
+      '10 Cinematic Reels / YouTube Shorts',
+      'Complete Visual Hook & Script Guidance',
+      '1 Half-Day Production Shoot or Raw Asset Ingest',
+      'Trend-Jacked Audio & Premium Transitions',
+      'Priority Turnaround & Story Cutdowns',
+    ],
   },
   {
-    id: 3, code: 'PACKAGE 03', name: 'Premium Plan', price: 14999,
-    duration: 'Full Day', badge: 'Best Value',
-    features: ['Full-day event coverage', 'Premium creative coverage', 'Multiple highlight reels', 'Priority editing', 'Customized deliverables'],
+    id: 3,
+    code: 'PACKAGE 03',
+    name: 'Premium Brand Package',
+    price: 34999,
+    duration: 'Full Creative Suite',
+    badge: 'Best Value',
+    features: [
+      '20 Multi-Platform Visual Deliverables',
+      '1 Full-Day Commercial & On-Site Shoot',
+      'Dedicated Creative Director & Video Editor',
+      '4K Master Files & Formatted Cutdowns',
+      'End-to-End Campaign Strategy & Fast Turnaround',
+    ],
+  },
+  {
+    id: 4,
+    code: 'PACKAGE 04',
+    name: 'Custom Content Package',
+    price: 49999,
+    duration: 'Tailored Production',
+    badge: 'Enterprise',
+    features: [
+      'Tailored Corporate & Commercial Shoots',
+      'Motion Graphics, 3D Mockups & Invitations',
+      'Brand Documentaries & Executive Interviews',
+      'Omnichannel Multi-Asset Deliverables',
+      'Dedicated Creative Squad & Unlimited Revisions',
+    ],
   },
 ]
 
@@ -51,7 +92,6 @@ export function usePricing() {
   useEffect(() => {
     fetchPackages()
 
-    // ── Realtime subscription ──────────────────────────────────
     const channel = supabase
       .channel('public:pricing_packages')
       .on(
@@ -61,7 +101,6 @@ export function usePricing() {
       )
       .subscribe()
 
-    // ── Refetch when tab becomes visible again ─────────────────
     const onVisibility = () => {
       if (document.visibilityState === 'visible') fetchPackages()
     }

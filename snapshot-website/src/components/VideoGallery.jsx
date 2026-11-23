@@ -9,7 +9,6 @@ export default function VideoGallery() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
   const { videos, loading } = usePortfolioVideos()
 
-  // Normalise field names: Supabase uses public_url/thumbnail_url, fallback uses videoUrl/thumbnail
   const normalised = videos.map(v => ({
     ...v,
     videoUrl:  v.public_url   || v.videoUrl  || '',
@@ -46,7 +45,7 @@ export default function VideoGallery() {
             }}
           >
             <span style={{ width: '32px', height: '1px', background: '#FF351F', display: 'inline-block' }} />
-            Our Work
+            Featured Work
             <span style={{ width: '32px', height: '1px', background: '#FF351F', display: 'inline-block' }} />
           </motion.p>
           <motion.h2
@@ -56,9 +55,9 @@ export default function VideoGallery() {
             transition={{ duration: 0.7, delay: 0.1 }}
             style={{ color: '#fff' }}
           >
-            Shot vertical.
+            Crafted for attention.
             <br />
-            <em style={{ fontStyle: 'italic', color: '#FF351F' }}>Made for the feed.</em>
+            <em style={{ fontStyle: 'italic', color: '#FF351F' }}>Produced to perform.</em>
           </motion.h2>
         </div>
 
@@ -69,96 +68,98 @@ export default function VideoGallery() {
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(6, 1fr)',
-            gap: '12px',
-          }}
-          className="video-grid"
-        >
-          {normalised.map((video, i) => (
-            <motion.div
-              key={video.id}
-              initial={{ opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              onClick={() => setActiveVideo(video)}
-              className="hover-zoom"
-              style={{
-                position: 'relative',
-                aspectRatio: '9/16',
-                overflow: 'hidden',
-                cursor: 'pointer',
-                borderRadius: '8px',
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
-            >
-              <img
-                src={video.thumbnail}
-                alt={video.title}
-                loading="lazy"
-                className="zoom-target"
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(6, 1fr)',
+              gap: '12px',
+            }}
+            className="video-grid"
+          >
+            {normalised.map((video, i) => (
+              <motion.div
+                key={video.id}
+                initial={{ opacity: 0, y: 24 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                onClick={() => setActiveVideo(video)}
+                className="hover-zoom"
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
-                  transition: 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                  position: 'relative',
+                  aspectRatio: '9/16',
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255,255,255,0.06)',
                 }}
-              />
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(to top, rgba(10,10,10,0.8) 0%, transparent 60%)',
-              }} />
-              {/* Play button */}
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: 'rgba(255,53,31,0.9)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backdropFilter: 'blur(8px)',
-              }}>
-                <Play size={18} fill="#fff" color="#fff" />
-              </div>
-              {/* Category tag */}
-              <div style={{
-                position: 'absolute',
-                bottom: '12px',
-                left: '12px',
-                right: '12px',
-              }}>
+              >
+                <img
+                  src={video.thumbnail}
+                  alt={video.title}
+                  loading="lazy"
+                  className="zoom-target"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
+                    transition: 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                  }}
+                />
                 <div style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '0.6rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.15em',
-                  textTransform: 'uppercase',
-                  color: '#FF351F',
-                  marginBottom: '2px',
-                }}>
-                  {video.category}
-                </div>
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(to top, rgba(10,10,10,0.85) 0%, transparent 60%)',
+                }} />
+                {/* Play button */}
                 <div style={{
-                  fontFamily: 'Playfair Display, serif',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  color: '#fff',
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '50%',
+                  background: 'rgba(255,53,31,0.92)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: '0 4px 20px rgba(255,53,31,0.4)',
                 }}>
-                  {video.title}
+                  <Play size={17} fill="#fff" color="#fff" />
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                {/* Category tag */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '12px',
+                  left: '12px',
+                  right: '12px',
+                }}>
+                  <div style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '0.6rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    color: '#FF351F',
+                    marginBottom: '2px',
+                  }}>
+                    {video.category}
+                  </div>
+                  <div style={{
+                    fontFamily: 'Playfair Display, serif',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    color: '#fff',
+                    lineHeight: 1.2,
+                  }}>
+                    {video.title}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -305,7 +306,7 @@ function VideoModal({ video, onClose }) {
           left: 0,
           right: 0,
           padding: '20px',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)',
+          background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)',
         }}>
           <p style={{
             fontFamily: 'Inter, sans-serif',

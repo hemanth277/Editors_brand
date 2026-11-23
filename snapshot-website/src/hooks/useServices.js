@@ -1,14 +1,43 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-// Static fallback - used if Supabase is unavailable
 const STATIC_SERVICES = [
-  { id: 1, title: 'Wedding Reel Making', description: 'Every glance, every tear, every laugh — captured in cinematic vertical reels that tell your love story forever.', image_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80' },
-  { id: 2, title: 'Engagement Coverage', description: 'The beginning of forever deserves stunning visuals. We document the magic of your engagement in breathtaking reels.', image_url: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800&q=80' },
-  { id: 3, title: 'Haldi & Mehendi', description: 'The vibrant colors, the laughter, the traditions — our Reel Makers capture every joyful moment of your pre-wedding celebrations.', image_url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&q=80' },
-  { id: 4, title: 'Sangeet & Reception', description: 'From the first dance to the last performance, we craft stunning highlight reels of your most memorable celebrations.', image_url: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&q=80' },
-  { id: 5, title: 'Birthday Celebrations', description: "Whether it's a milestone birthday or an intimate gathering, we create reels that capture the joy and energy of your celebration.", image_url: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80' },
-  { id: 6, title: 'Corporate Events', description: "Professional coverage for conferences, launches, and corporate celebrations that reflect your brand's story.", image_url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80' },
+  {
+    id: 1,
+    title: 'Instagram Reels & YouTube Shorts',
+    description: 'High-retention, trend-aware vertical short-form videos designed to stop the scroll, explode organic reach, and convert viewers into loyal followers.',
+    image_url: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&q=80',
+  },
+  {
+    id: 2,
+    title: 'Brand Promotional Videos',
+    description: 'Cinematic product launches, lifestyle brand commercials, and founder stories engineered to build brand prestige and drive conversions.',
+    image_url: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=80',
+  },
+  {
+    id: 3,
+    title: 'Business & Corporate Content',
+    description: 'Polished company overviews, executive interviews, conference highlights, and internal culture reels that showcase industry leadership.',
+    image_url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80',
+  },
+  {
+    id: 4,
+    title: 'Video Editing & Post-Production',
+    description: 'Full-suite post-production: motion graphics, sound design, color grading, pacing optimization, and subtitle animation tailored for modern feeds.',
+    image_url: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=80',
+  },
+  {
+    id: 5,
+    title: 'Digital Invitations & Motion Teasers',
+    description: 'Bespoke digital video invitations, exclusive VIP event invites, and motion reveal teasers crafted with custom typography and motion design.',
+    image_url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+  },
+  {
+    id: 6,
+    title: 'Commercial Shoots & Product Content',
+    description: 'Studio and location shoots with high-end camera rigs, studio lighting, and creative art direction for e-commerce and digital advertising.',
+    image_url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80',
+  },
 ]
 
 export function useServices() {

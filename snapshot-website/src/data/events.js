@@ -1,66 +1,70 @@
+// ============================================================
+// SNAPSHOT CONTENT CREATION AGENCY - PORTFOLIO CATEGORIES
+// ============================================================
+
 export const eventCategories = [
   {
     id: 1,
-    name: "Engagement",
-    slug: "engagement",
+    name: "Social Media Reels",
+    slug: "reels",
     image:
-      "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=600&q=80",
-    count: "48 Reels",
+      "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&q=80",
+    count: "150+ Produced",
   },
   {
     id: 2,
-    name: "Wedding",
-    slug: "wedding",
+    name: "Brand Commercials",
+    slug: "commercials",
     image:
-      "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80",
-    count: "120 Reels",
+      "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=80",
+    count: "45+ Campaigns",
   },
   {
     id: 3,
-    name: "Haldi",
-    slug: "haldi",
+    name: "Corporate & Business",
+    slug: "corporate",
     image:
-      "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=600&q=80",
-    count: "36 Reels",
+      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80",
+    count: "60+ Videos",
   },
   {
     id: 4,
-    name: "Sangeet",
-    slug: "sangeet",
+    name: "Video Editing Suite",
+    slug: "editing",
     image:
-      "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80",
-    count: "54 Reels",
+      "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=80",
+    count: "300+ Deliverables",
   },
   {
     id: 5,
-    name: "Birthday",
-    slug: "birthday",
+    name: "Digital Invitations",
+    slug: "invitations",
     image:
-      "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80",
-    count: "72 Reels",
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+    count: "80+ Designs",
   },
   {
     id: 6,
-    name: "Pre-Wedding",
-    slug: "pre-wedding",
+    name: "Product Shoots",
+    slug: "products",
     image:
-      "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&q=80",
-    count: "29 Reels",
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80",
+    count: "120+ Sets",
   },
   {
     id: 7,
-    name: "Reception",
-    slug: "reception",
+    name: "YouTube Long & Shorts",
+    slug: "youtube",
     image:
-      "https://images.unsplash.com/photo-1511795409834-432f7b1728b2?w=600&q=80",
-    count: "41 Reels",
+      "https://images.unsplash.com/photo-1574717024453-354056aef977?w=800&q=80",
+    count: "90+ Episodes",
   },
   {
     id: 8,
-    name: "Corporate",
-    slug: "corporate",
+    name: "Motion Graphics & 3D",
+    slug: "motion",
     image:
-      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80",
-    count: "33 Reels",
+      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80",
+    count: "50+ Projects",
   },
 ];

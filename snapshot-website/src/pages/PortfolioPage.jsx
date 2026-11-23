@@ -31,7 +31,7 @@ export default function PortfolioPage() {
             gap: '12px',
           }}>
             <span style={{ width: '32px', height: '1px', background: '#FF351F', display: 'inline-block' }} />
-            Portfolio
+            Agency Portfolio
           </p>
           <h1 style={{
             fontFamily: 'Playfair Display, serif',
@@ -39,16 +39,15 @@ export default function PortfolioPage() {
             fontWeight: 900,
             lineHeight: 1.05,
             color: '#fff',
-            maxWidth: '700px',
+            maxWidth: '850px',
           }}>
-            Stories we've
-            <br />
-            <em style={{ fontStyle: 'italic', color: '#FF351F' }}>already told.</em>
+            Visual campaigns that{' '}
+            <em style={{ fontStyle: 'italic', color: '#FF351F' }}>drive results.</em>
           </h1>
         </div>
       </div>
-      <EventGallery />
       <VideoGallery />
+      <EventGallery />
     </motion.main>
   )
 }

@@ -60,16 +60,16 @@ export default function AdminLogin() {
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <div style={{
             fontFamily: 'Playfair Display, serif',
-            fontSize: '1.6rem',
+            fontSize: '1.7rem',
             fontWeight: 800,
-            letterSpacing: '0.08em',
+            letterSpacing: '0.1em',
             color: '#fff',
             marginBottom: '8px',
           }}>
-            EDITORS <span style={{ color: '#FF351F' }}>BRAND</span>
+            SNAP<span style={{ color: '#FF351F' }}>SHOT</span>
           </div>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#A0A0A0' }}>
-            Admin Dashboard
+            Agency Admin Portal
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export default function AdminLogin() {
             <input
               className="form-input"
               type="email"
-              placeholder="admin@editorsbrand.in"
+              placeholder="admin@snapshotagency.in"
               value={email}
               onChange={e => setEmail(e.target.value)}
               autoComplete="email"
@@ -118,7 +118,7 @@ export default function AdminLogin() {
             disabled={loading}
             style={{ width: '100%', justifyContent: 'center', gap: '10px', opacity: loading ? 0.7 : 1 }}
           >
-            {loading ? <><Loader size={16} style={{ animation: 'spin 1s linear infinite' }} /> Signing in...</> : 'Sign In'}
+            {loading ? <><Loader size={16} style={{ animation: 'spin 1s linear infinite' }} /> Signing in...</> : 'Sign In to Dashboard'}
           </button>
         </form>
       </motion.div>

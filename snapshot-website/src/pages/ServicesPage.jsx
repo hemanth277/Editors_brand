@@ -31,7 +31,7 @@ export default function ServicesPage() {
             gap: '12px',
           }}>
             <span style={{ width: '32px', height: '1px', background: '#FF351F', display: 'inline-block' }} />
-            What We Offer
+            Agency Capabilities
           </p>
           <h1 style={{
             fontFamily: 'Playfair Display, serif',
@@ -39,10 +39,10 @@ export default function ServicesPage() {
             fontWeight: 900,
             lineHeight: 1.05,
             color: '#fff',
-            maxWidth: '700px',
+            maxWidth: '850px',
           }}>
-            Services built for{' '}
-            <em style={{ fontStyle: 'italic', color: '#FF351F' }}>your celebration.</em>
+            Content creation services engineered for{' '}
+            <em style={{ fontStyle: 'italic', color: '#FF351F' }}>modern growth.</em>
           </h1>
         </div>
       </div>

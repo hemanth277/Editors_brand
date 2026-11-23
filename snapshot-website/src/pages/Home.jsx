@@ -1,14 +1,15 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Hero from '../components/Hero'
 import EventTicker from '../components/EventTicker'
-import EventGallery from '../components/EventGallery'
+import WhySnapshot from '../components/WhySnapshot'
 import Services from '../components/Services'
+import EventGallery from '../components/EventGallery'
 import VideoGallery from '../components/VideoGallery'
 import HowItWorks from '../components/HowItWorks'
 import Pricing from '../components/Pricing'
+import Testimonials from '../components/Testimonials'
 import BookingForm from '../components/BookingForm'
-import WhySnapshot from '../components/WhySnapshot'
 import FAQ from '../components/FAQ'
 
 const pageVariants = {
@@ -18,12 +19,11 @@ const pageVariants = {
 }
 
 export default function Home() {
-  const [bookingOpen, setBookingOpen] = useState(false)
   const [selectedPackage, setSelectedPackage] = useState(null)
 
   const handleBookPackage = (pkg) => {
     setSelectedPackage(pkg)
-    setBookingOpen(true)
+    document.getElementById('inquiry')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
@@ -35,14 +35,16 @@ export default function Home() {
     >
       <Hero />
       <EventTicker />
-      <EventGallery />
+      <WhySnapshot />
       <Services />
+      <EventGallery />
       <VideoGallery />
       <HowItWorks />
       <Pricing onBookPackage={handleBookPackage} />
+      <Testimonials />
 
-      {/* Inline booking section */}
-      <section id="booking" style={{ background: '#151515', padding: 'clamp(60px, 8vh, 100px) 0' }}>
+      {/* Project Inquiry Section */}
+      <section id="inquiry" style={{ background: '#151515', padding: 'clamp(60px, 8vh, 100px) 0' }}>
         <div className="container-snap">
           <div style={{ marginBottom: '48px', textAlign: 'center' }}>
             <p style={{
@@ -59,22 +61,32 @@ export default function Home() {
               gap: '12px',
             }}>
               <span style={{ width: '32px', height: '1px', background: '#FF351F', display: 'inline-block' }} />
-              Book Now
+              Start a Project
               <span style={{ width: '32px', height: '1px', background: '#FF351F', display: 'inline-block' }} />
             </p>
             <h2 style={{
               fontFamily: 'Playfair Display, serif',
-              fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+              fontSize: 'clamp(2rem, 4vw, 3.8rem)',
               fontWeight: 800,
               color: '#fff',
               lineHeight: 1.1,
             }}>
-              Ready to capture
+              Ready to make your brand
               <br />
-              <em style={{ fontStyle: 'italic', color: '#FF351F' }}>your story?</em>
+              <em style={{ fontStyle: 'italic', color: '#FF351F' }}>stand out?</em>
             </h2>
+            <p style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '0.95rem',
+              color: '#A0A0A0',
+              marginTop: '16px',
+              maxWidth: '560px',
+              margin: '16px auto 0',
+            }}>
+              Tell us about your brand, content requirements, or campaign brief. We will get back to you with custom concepts and timelines within 24 hours.
+            </p>
           </div>
-          <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+          <div style={{ maxWidth: '720px', margin: '0 auto' }}>
             <BookingForm
               selectedPackage={selectedPackage}
               inline={true}
@@ -83,18 +95,7 @@ export default function Home() {
         </div>
       </section>
 
-      <WhySnapshot />
       <FAQ />
-
-      {/* Floating booking modal (triggered from pricing) */}
-      <AnimatePresence>
-        {bookingOpen && (
-          <BookingForm
-            selectedPackage={selectedPackage}
-            onClose={() => setBookingOpen(false)}
-          />
-        )}
-      </AnimatePresence>
     </motion.main>
   )
 }

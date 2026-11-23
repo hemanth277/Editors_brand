@@ -1,14 +1,49 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-// Static fallback for portfolio/videos
 const STATIC_VIDEOS = [
-  { id: 1, title: 'Wedding Highlights', category: 'Wedding', thumbnail_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=80', public_url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-  { id: 2, title: 'Couple Entry',       category: 'Wedding', thumbnail_url: 'https://images.unsplash.com/photo-1529636798458-92182e662485?w=400&q=80', public_url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-  { id: 3, title: 'Haldi Moments',      category: 'Haldi',   thumbnail_url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=400&q=80', public_url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-  { id: 4, title: 'Dance Performance',  category: 'Sangeet', thumbnail_url: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=400&q=80', public_url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-  { id: 5, title: 'Candid Celebrations',category: 'Wedding', thumbnail_url: 'https://images.unsplash.com/photo-1511795409834-432f7b1728b2?w=400&q=80', public_url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-  { id: 6, title: 'Birthday Party',     category: 'Birthday',thumbnail_url: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&q=80', public_url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+  {
+    id: 1,
+    title: 'Brand Growth Campaign',
+    category: 'Brand Commercial',
+    thumbnail_url: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&q=80',
+    public_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  },
+  {
+    id: 2,
+    title: 'High-Retention Reel',
+    category: 'Instagram Reel',
+    thumbnail_url: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&q=80',
+    public_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  },
+  {
+    id: 3,
+    title: 'Corporate Storytelling',
+    category: 'Corporate Film',
+    thumbnail_url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80',
+    public_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  },
+  {
+    id: 4,
+    title: 'Product In-Motion',
+    category: 'Product Shoot',
+    thumbnail_url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80',
+    public_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  },
+  {
+    id: 5,
+    title: 'Luxury Event Invitation',
+    category: 'Digital Invitation',
+    thumbnail_url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&q=80',
+    public_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  },
+  {
+    id: 6,
+    title: 'Creator YouTube Short',
+    category: 'YouTube Short',
+    thumbnail_url: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=600&q=80',
+    public_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  },
 ]
 
 export function usePortfolioVideos() {

@@ -47,12 +47,12 @@ export default function Services() {
               gap: '12px',
             }}>
               <span style={{ width: '32px', height: '1px', background: '#FF351F', display: 'inline-block' }} />
-              What We Do
+              Our Services
             </p>
             <h2 className="heading-lg" style={{ color: '#fff' }}>
-              Your event.
+              Your vision.
               <br />
-              <em style={{ fontStyle: 'italic', color: '#fff' }}>Our Reel Makers.</em>
+              <em style={{ fontStyle: 'italic', color: '#FF351F' }}>Our production studio.</em>
             </h2>
           </motion.div>
           <motion.p
@@ -66,8 +66,7 @@ export default function Services() {
               lineHeight: 1.75,
             }}
           >
-            From the first emotion to the final celebration, our creative team
-            captures every moment that deserves to be remembered.
+            From high-growth Reels and YouTube Shorts to full brand commercials, corporate content, and post-production—we build visuals that convert viewers into customers.
           </motion.p>
         </div>
 
@@ -85,7 +84,7 @@ export default function Services() {
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '16px',
+              gap: '20px',
             }}
             className="services-grid"
           >
@@ -111,7 +110,6 @@ export default function Services() {
 }
 
 function ServiceCard({ service, index, inView }) {
-  // Support both Supabase column (image_url) and static fallback (image)
   const imageSrc = service.image_url || service.image || ''
 
   return (
@@ -123,9 +121,13 @@ function ServiceCard({ service, index, inView }) {
       style={{
         position: 'relative',
         overflow: 'hidden',
-        height: '360px',
+        height: '380px',
         cursor: 'pointer',
-        borderRadius: '2px',
+        borderRadius: '4px',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+      onClick={() => {
+        document.getElementById('inquiry')?.scrollIntoView({ behavior: 'smooth' })
       }}
     >
       <img
@@ -141,11 +143,11 @@ function ServiceCard({ service, index, inView }) {
           transition: 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         }}
       />
-      {/* Dark overlay */}
+      {/* Dark overlay with glassmorphism gradient */}
       <div style={{
         position: 'absolute',
         inset: 0,
-        background: 'linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.3) 60%, transparent 100%)',
+        background: 'linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.45) 55%, transparent 100%)',
       }} />
 
       {/* Content */}
@@ -158,18 +160,18 @@ function ServiceCard({ service, index, inView }) {
       }}>
         <h3 style={{
           fontFamily: 'Playfair Display, serif',
-          fontSize: 'clamp(1.1rem, 2vw, 1.3rem)',
+          fontSize: 'clamp(1.15rem, 2vw, 1.35rem)',
           fontWeight: 700,
           color: '#fff',
           marginBottom: '8px',
-          lineHeight: 1.2,
+          lineHeight: 1.25,
         }}>
           {service.title}
         </h3>
         <p style={{
           fontFamily: 'Inter, sans-serif',
-          fontSize: '0.85rem',
-          color: 'rgba(255,255,255,0.6)',
+          fontSize: '0.825rem',
+          color: 'rgba(255,255,255,0.7)',
           lineHeight: 1.6,
           marginBottom: '16px',
         }}>
@@ -186,7 +188,7 @@ function ServiceCard({ service, index, inView }) {
           textTransform: 'uppercase',
           color: '#FF351F',
         }}>
-          Explore <ArrowUpRight size={14} />
+          Inquire Now <ArrowUpRight size={14} />
         </span>
       </div>
     </motion.div>

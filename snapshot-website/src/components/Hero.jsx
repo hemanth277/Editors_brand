@@ -1,9 +1,10 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowDown, Play } from 'lucide-react'
+import { ArrowDown, Play, Sparkles } from 'lucide-react'
 
+// Premium high-end studio / content creator visual
 const heroImage =
-  'https://images.unsplash.com/photo-1511795409834-432f7b1728b2?w=1920&q=85'
+  'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1920&q=85'
 
 export default function Hero() {
   const ref = useRef(null)
@@ -12,15 +13,15 @@ export default function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   const handleScrollDown = () => {
-    document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' })
+    document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const container = {
     hidden: {},
-    show: { transition: { staggerChildren: 0.15, delayChildren: 0.3 } },
+    show: { transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
   }
   const item = {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: 0, y: 35 },
     show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] } },
   }
 
@@ -31,13 +32,13 @@ export default function Hero() {
         position: 'relative',
         width: '100%',
         height: '100svh',
-        minHeight: '600px',
+        minHeight: '650px',
         overflow: 'hidden',
         display: 'flex',
         alignItems: 'flex-end',
       }}
     >
-      {/* Background with parallax */}
+      {/* Background with subtle parallax */}
       <motion.div
         style={{
           position: 'absolute',
@@ -50,35 +51,31 @@ export default function Hero() {
       >
         <img
           src={heroImage}
-          alt="Premium event photography"
+          alt="SNAPSHOT Content Creation Studio"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           loading="eager"
           fetchPriority="high"
         />
       </motion.div>
 
-      {/* Dark overlay */}
+      {/* Cinematic dark gradients */}
       <div style={{
         position: 'absolute',
         inset: 0,
-        background: 'linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.5) 50%, rgba(10,10,10,0.2) 100%)',
+        background: 'linear-gradient(to top, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0.65) 50%, rgba(10,10,10,0.4) 100%)',
       }} />
 
-      {/* Orange accent line – top left */}
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ delay: 1.2, duration: 0.8 }}
-        style={{
-          position: 'absolute',
-          top: '72px',
-          left: 0,
-          width: '80px',
-          height: '2px',
-          background: '#FF351F',
-          transformOrigin: 'left',
-        }}
-      />
+      {/* Subtle glowing orange grid element */}
+      <div style={{
+        position: 'absolute',
+        top: '20%',
+        right: '10%',
+        width: '400px',
+        height: '400px',
+        background: 'radial-gradient(circle, rgba(255,53,31,0.12) 0%, transparent 70%)',
+        filter: 'blur(60px)',
+        pointerEvents: 'none',
+      }} />
 
       {/* Content */}
       <motion.div
@@ -87,78 +84,81 @@ export default function Hero() {
         initial="hidden"
         animate="show"
       >
-        <div className="container-snap" style={{ paddingBottom: 'clamp(60px, 10vh, 120px)' }}>
+        <div className="container-snap" style={{ paddingBottom: 'clamp(60px, 9vh, 110px)' }}>
 
-          {/* Eyebrow */}
-          <motion.p
+          {/* Eyebrow badge */}
+          <motion.div
             variants={item}
             style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '6px 16px',
+              background: 'rgba(255,53,31,0.12)',
+              border: '1px solid rgba(255,53,31,0.3)',
+              borderRadius: '24px',
+              marginBottom: '24px',
+            }}
+          >
+            <Sparkles size={14} style={{ color: '#FF351F' }} />
+            <span style={{
               fontFamily: 'Inter, sans-serif',
               fontSize: '0.75rem',
               fontWeight: 600,
-              letterSpacing: '0.3em',
+              letterSpacing: '0.15em',
               textTransform: 'uppercase',
               color: '#FF351F',
-              marginBottom: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-            }}
-          >
-            <span style={{ display: 'inline-block', width: '32px', height: '1px', background: '#FF351F' }} />
-            Premium Reel Maker Booking
-          </motion.p>
+            }}>
+              Content Creation Studio & Digital Agency
+            </span>
+          </motion.div>
 
           {/* Main headline */}
           <motion.h1
             variants={item}
             style={{
               fontFamily: 'Playfair Display, serif',
-              fontSize: 'clamp(3rem, 8vw, 8rem)',
+              fontSize: 'clamp(2.4rem, 6.5vw, 6rem)',
               fontWeight: 900,
-              lineHeight: 1.0,
+              lineHeight: 1.08,
               letterSpacing: '-0.02em',
               color: '#fff',
-              marginBottom: '28px',
-              maxWidth: '900px',
+              marginBottom: '24px',
+              maxWidth: '960px',
             }}
           >
-            Real moments.
-            <br />
-            <em style={{ fontStyle: 'italic', color: '#fff' }}>Edited.</em>
+            We Create Content That Makes Your{' '}
+            <span style={{
+              background: 'linear-gradient(90deg, #fff 0%, #FF351F 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontStyle: 'italic',
+            }}>
+              Brand Stand Out.
+            </span>
           </motion.h1>
 
-          {/* Subtext */}
+          {/* Subtitle */}
           <motion.p
             variants={item}
             style={{
               fontFamily: 'Inter, sans-serif',
-              fontSize: 'clamp(0.95rem, 1.8vw, 1.2rem)',
-              color: 'rgba(255,255,255,0.7)',
-              maxWidth: '540px',
+              fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
+              color: 'rgba(255,255,255,0.75)',
+              maxWidth: '620px',
               lineHeight: 1.7,
-              marginBottom: '48px',
+              marginBottom: '40px',
             }}
           >
-            Your celebrations deserve more than memories.
-            We capture, create and deliver stories worth sharing.
+            From ideas to impactful visuals, we help brands and creators tell their stories.
+            Specializing in high-retention Reels, Shorts, brand commercials, corporate content, and post-production.
           </motion.p>
 
-          {/* CTA buttons */}
+          {/* Buttons: Explore Our Work & Start a Project */}
           <motion.div
             variants={item}
-            style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}
+            style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}
           >
-            <a
-              href="#booking"
-              onClick={(e) => {
-                e.preventDefault()
-                document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-              className="btn-primary"
-            >
-              Book Your Reel Maker
-            </a>
             <a
               href="#our-work"
               onClick={(e) => {
@@ -166,24 +166,37 @@ export default function Hero() {
                 document.getElementById('our-work')?.scrollIntoView({ behavior: 'smooth' })
               }}
               className="btn-outline"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             >
-              <Play size={14} />
-              Explore Our Work
+              <Play size={15} fill="#fff" /> Explore Our Work
+            </a>
+
+            <a
+              href="#inquiry"
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById('inquiry')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+              className="btn-primary"
+            >
+              Start a Project
             </a>
           </motion.div>
+
         </div>
       </motion.div>
 
-      {/* Scroll indicator */}
+      {/* Scroll down indicator */}
       <motion.button
         onClick={handleScrollDown}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.8, duration: 0.6 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
         style={{
           position: 'absolute',
-          bottom: '32px',
-          right: '24px',
+          bottom: '28px',
+          right: '32px',
+          zIndex: 3,
           background: 'none',
           border: 'none',
           color: 'rgba(255,255,255,0.5)',
@@ -192,67 +205,20 @@ export default function Hero() {
           flexDirection: 'column',
           alignItems: 'center',
           gap: '8px',
-          zIndex: 3,
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '0.65rem',
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
         }}
       >
-        <span style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-          Scroll
-        </span>
+        <span>SCROLL</span>
         <motion.div
           animate={{ y: [0, 6, 0] }}
-          transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
         >
-          <ArrowDown size={18} />
+          <ArrowDown size={14} />
         </motion.div>
       </motion.button>
-
-      {/* Stats strip */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.4, duration: 0.6 }}
-        style={{
-          position: 'absolute',
-          top: '50%',
-          right: 'clamp(16px, 3vw, 48px)',
-          transform: 'translateY(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '32px',
-          zIndex: 3,
-        }}
-        className="hero-stats"
-      >
-        {[
-          { num: '500+', label: 'Events Covered' },
-          { num: '1200+', label: 'Reels Created' },
-          { num: '98%', label: 'Happy Clients' },
-        ].map(s => (
-          <div key={s.label} style={{ textAlign: 'center' }}>
-            <div style={{
-              fontFamily: 'Playfair Display, serif',
-              fontSize: '1.8rem',
-              fontWeight: 700,
-              color: '#fff',
-              lineHeight: 1,
-            }}>{s.num}</div>
-            <div style={{
-              fontFamily: 'Inter, sans-serif',
-              fontSize: '0.65rem',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.4)',
-              marginTop: '4px',
-            }}>{s.label}</div>
-          </div>
-        ))}
-      </motion.div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .hero-stats { display: none !important; }
-        }
-      `}</style>
     </section>
   )
 }
