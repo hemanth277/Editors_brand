@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
@@ -7,7 +7,6 @@ import CustomCursor from './components/CustomCursor'
 import LoadingScreen from './components/LoadingScreen'
 import Home from './pages/Home'
 import ServicesPage from './pages/ServicesPage'
-import PortfolioPage from './pages/PortfolioPage'
 import ContactPage from './pages/ContactPage'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -46,7 +45,7 @@ export default function App() {
           <Routes location={location} key={location.pathname}>
             <Route path="/"         element={<Home />} />
             <Route path="/services" element={<ServicesPage />} />
-            <Route path="/our-work" element={<PortfolioPage />} />
+            <Route path="/our-work" element={<Navigate to="/services" replace />} />
             <Route path="/contact"  element={<ContactPage />} />
           </Routes>
           <Footer />

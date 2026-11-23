@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowDown, Play, Sparkles } from 'lucide-react'
+import { ArrowDown, Sparkles, ArrowRight } from 'lucide-react'
 
 // Premium high-end studio / content creator visual
 const heroImage =
@@ -154,21 +154,21 @@ export default function Hero() {
             Specializing in high-retention Reels, Shorts, brand commercials, corporate content, and post-production.
           </motion.p>
 
-          {/* Buttons: Explore Our Work & Start a Project */}
+          {/* Buttons: Our Services & Start a Project */}
           <motion.div
             variants={item}
             style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}
           >
             <a
-              href="#our-work"
+              href="#services"
               onClick={(e) => {
                 e.preventDefault()
-                document.getElementById('our-work')?.scrollIntoView({ behavior: 'smooth' })
+                document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })
               }}
               className="btn-outline"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             >
-              <Play size={15} fill="#fff" /> Explore Our Work
+              Explore Services <ArrowRight size={15} />
             </a>
 
             <a

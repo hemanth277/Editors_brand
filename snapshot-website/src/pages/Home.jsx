@@ -4,8 +4,6 @@ import Hero from '../components/Hero'
 import EventTicker from '../components/EventTicker'
 import WhySnapshot from '../components/WhySnapshot'
 import Services from '../components/Services'
-import EventGallery from '../components/EventGallery'
-import VideoGallery from '../components/VideoGallery'
 import HowItWorks from '../components/HowItWorks'
 import Pricing from '../components/Pricing'
 import Testimonials from '../components/Testimonials'
@@ -37,8 +35,6 @@ export default function Home() {
       <EventTicker />
       <WhySnapshot />
       <Services />
-      <EventGallery />
-      <VideoGallery />
       <HowItWorks />
       <Pricing onBookPackage={handleBookPackage} />
       <Testimonials />
