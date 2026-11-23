@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowDown, Sparkles, ArrowRight } from 'lucide-react'
+import { ArrowDown, ArrowRight } from 'lucide-react'
 
 // Premium high-end studio / content creator visual
 const heroImage =
@@ -87,32 +87,6 @@ export default function Hero() {
         <div className="container-snap" style={{ paddingBottom: 'clamp(60px, 9vh, 110px)' }}>
 
           {/* Eyebrow badge */}
-          <motion.div
-            variants={item}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '6px 16px',
-              background: 'rgba(255,53,31,0.12)',
-              border: '1px solid rgba(255,53,31,0.3)',
-              borderRadius: '24px',
-              marginBottom: '24px',
-            }}
-          >
-            <Sparkles size={14} style={{ color: '#FF351F' }} />
-            <span style={{
-              fontFamily: 'Inter, sans-serif',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              color: '#FF351F',
-            }}>
-              Content Creation Studio & Digital Agency
-            </span>
-          </motion.div>
-
           {/* Main headline */}
           <motion.h1
             variants={item}

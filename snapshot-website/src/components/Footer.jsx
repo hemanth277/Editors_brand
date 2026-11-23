@@ -141,7 +141,7 @@ export default function Footer() {
               marginBottom: '24px',
               maxWidth: '300px',
             }}>
-              A premium Content Creation Studio & Digital Agency. We help brands, businesses, and creators produce scroll-stopping digital content.
+              We help brands, businesses, and creators produce scroll-stopping digital content.
             </p>
             {/* Social links */}
             <div style={{ display: 'flex', gap: '12px' }}>
