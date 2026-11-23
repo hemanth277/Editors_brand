@@ -110,7 +110,7 @@ export default function AdminDashboard() {
 
   const handleSignOut = async () => {
     await signOut()
-    navigate('/admin')
+    navigate('/admin/login', { replace: true })
   }
 
   return (

@@ -18,7 +18,7 @@ export default function App() {
   const isAdminRoute = location.pathname.startsWith('/admin')
 
   useEffect(() => {
-    // Quick 600ms branded entrance
+    // Quick 600ms branded entrance for public visitors
     const timer = setTimeout(() => setLoading(false), 600)
     return () => clearTimeout(timer)
   }, [])
@@ -30,23 +30,43 @@ export default function App() {
       </AnimatePresence>
 
       {isAdminRoute ? (
-        <Routes location={location} key={location.pathname}>
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={
-            <RequireAdmin>
-              <AdminDashboard />
-            </RequireAdmin>
-          } />
+        <Routes>
+          {/* Admin Login Route */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+
+          {/* Protected Admin Dashboard Route at /admin */}
+          <Route
+            path="/admin"
+            element={
+              <RequireAdmin>
+                <AdminDashboard />
+              </RequireAdmin>
+            }
+          />
+
+          {/* Alias /admin/dashboard -> redirect to /admin */}
+          <Route
+            path="/admin/dashboard"
+            element={<Navigate to="/admin" replace />}
+          />
+
+          {/* Fallback for unknown /admin/* -> /admin */}
+          <Route
+            path="/admin/*"
+            element={<Navigate to="/admin" replace />}
+          />
         </Routes>
       ) : (
         <>
           <CustomCursor />
           <Navbar />
-          <Routes location={location} key={location.pathname}>
+          <Routes>
             <Route path="/"         element={<Home />} />
             <Route path="/services" element={<ServicesPage />} />
-            <Route path="/our-work" element={<Navigate to="/services" replace />} />
+            <Route path="/our-work" element={<Navigate to="/#our-work" replace />} />
             <Route path="/contact"  element={<ContactPage />} />
+            {/* Catch-all for public routes */}
+            <Route path="*"         element={<Navigate to="/" replace />} />
           </Routes>
           <Footer />
         </>
