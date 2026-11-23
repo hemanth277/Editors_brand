@@ -25,6 +25,7 @@ export default function VideoGallery() {
   const inView = useInView(sectionRef, { once: false, margin: '-40px' })
   const sliderRef = useRef(null)
   const resumeTimerRef = useRef(null)
+  const autoStepIntervalRef = useRef(null)
 
   // Drag tracking state
   const isDownRef = useRef(false)
@@ -42,28 +43,49 @@ export default function VideoGallery() {
     thumbnail: v.thumbnail_url || v.thumbnail || '',
   }))
 
-  // Auto-scroll loop
-  useEffect(() => {
+  // Scroll to a specific card index smoothly
+  const scrollToCardIndex = useCallback((targetIndex) => {
     const slider = sliderRef.current
-    if (!slider || !inView || isInteracting || filteredVideos.length <= 1) return
+    if (!slider) return
+    const cards = slider.querySelectorAll('.snap-video-card')
+    if (!cards.length) return
 
-    let animationFrameId
-    const step = () => {
-      if (!slider) return
-      // Slow, cinematic drift
-      slider.scrollLeft += 0.65
+    const safeIndex = (targetIndex + cards.length) % cards.length
+    const targetCard = cards[safeIndex]
+    if (!targetCard) return
 
-      // Seamless infinite looping without jumps
-      const maxScroll = slider.scrollWidth - slider.clientWidth
-      if (slider.scrollLeft >= maxScroll - 4) {
-        slider.scrollLeft = 0
-      }
-      animationFrameId = requestAnimationFrame(step)
+    // Center the card in the viewport
+    const containerWidth = slider.clientWidth
+    const cardLeft = targetCard.offsetLeft
+    const cardWidth = targetCard.clientWidth
+    const scrollTo = cardLeft - (containerWidth / 2) + (cardWidth / 2)
+
+    slider.scrollTo({
+      left: scrollTo,
+      behavior: 'smooth',
+    })
+    setCenterIndex(safeIndex)
+  }, [])
+
+  // Advance one card at a time slowly every 4 seconds
+  useEffect(() => {
+    if (!inView || isInteracting || filteredVideos.length <= 1) {
+      if (autoStepIntervalRef.current) clearInterval(autoStepIntervalRef.current)
+      return
     }
 
-    animationFrameId = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(animationFrameId)
-  }, [inView, isInteracting, filteredVideos.length])
+    autoStepIntervalRef.current = setInterval(() => {
+      setCenterIndex((prevIdx) => {
+        const nextIdx = (prevIdx + 1) % filteredVideos.length
+        scrollToCardIndex(nextIdx)
+        return nextIdx
+      })
+    }, 4200) // 4.2 seconds on each video for a slow, premium pace
+
+    return () => {
+      if (autoStepIntervalRef.current) clearInterval(autoStepIntervalRef.current)
+    }
+  }, [inView, isInteracting, filteredVideos.length, scrollToCardIndex])
 
   // Track the most centered card for visual prominence
   const updateCenterCard = useCallback(() => {
@@ -103,9 +125,10 @@ export default function VideoGallery() {
     }
   }, [updateCenterCard, filteredVideos.length])
 
-  // Interaction handlers to pause auto-scroll gracefully
+  // Interaction handlers to pause auto-advancing
   const handleUserInteractionStart = () => {
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current)
+    if (autoStepIntervalRef.current) clearInterval(autoStepIntervalRef.current)
     setIsInteracting(true)
   }
 
@@ -113,7 +136,7 @@ export default function VideoGallery() {
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current)
     resumeTimerRef.current = setTimeout(() => {
       setIsInteracting(false)
-    }, 2400) // Resume slow drift 2.4s after user stops
+    }, 4000) // Resume after 4 seconds of inactivity
   }
 
   // Mouse drag logic
@@ -129,11 +152,10 @@ export default function VideoGallery() {
 
   const handleMouseMove = (e) => {
     if (!isDownRef.current) return
-    e.preventDefault()
     const slider = sliderRef.current
     if (!slider) return
     const x = e.pageX - slider.offsetLeft
-    const walk = (x - startXRef.current) * 1.5
+    const walk = (x - startXRef.current) * 1.2
     if (Math.abs(walk) > 6) {
       hasMovedRef.current = true
     }
@@ -145,31 +167,11 @@ export default function VideoGallery() {
     handleUserInteractionEnd()
   }
 
-  // Wheel interaction (horizontal conversion on shiftless trackpad/wheel)
-  const handleWheel = (e) => {
-    const slider = sliderRef.current
-    if (!slider) return
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-      handleUserInteractionStart()
-      handleUserInteractionEnd()
-      return
-    }
-    // If vertical delta is significant, scroll horizontally inside gallery
-    if (Math.abs(e.deltaY) > 20) {
-      handleUserInteractionStart()
-      slider.scrollLeft += e.deltaY * 0.9
-      handleUserInteractionEnd()
-    }
-  }
-
-  // Nav arrow click
+  // Nav arrow click (1 by 1)
   const scrollNav = (direction) => {
-    const slider = sliderRef.current
-    if (!slider) return
     handleUserInteractionStart()
-    const cardWidth = slider.querySelector('.snap-video-card')?.clientWidth || 300
-    const scrollAmount = (cardWidth + 24) * (direction === 'left' ? -1 : 1)
-    slider.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    const nextIdx = direction === 'left' ? centerIndex - 1 : centerIndex + 1
+    scrollToCardIndex(nextIdx)
     handleUserInteractionEnd()
   }
 
@@ -286,6 +288,7 @@ export default function VideoGallery() {
                   setSelectedCategory(cat)
                   handleUserInteractionStart()
                   handleUserInteractionEnd()
+                  setTimeout(() => scrollToCardIndex(0), 100)
                 }}
                 style={{
                   background: isSelected ? '#FF351F' : 'rgba(255,255,255,0.04)',
@@ -434,7 +437,7 @@ export default function VideoGallery() {
           }}
         />
 
-        {/* Scrollable Track */}
+        {/* Scrollable Track with CSS Scroll-Snap */}
         <div
           ref={sliderRef}
           className="gallery-scroll-track"
@@ -444,14 +447,15 @@ export default function VideoGallery() {
           onMouseLeave={handleMouseUp}
           onTouchStart={handleUserInteractionStart}
           onTouchEnd={handleUserInteractionEnd}
-          onWheel={handleWheel}
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '24px',
             overflowX: 'auto',
-            paddingLeft: 'max(24px, calc(50vw - 140px))',
-            paddingRight: 'max(24px, calc(50vw - 140px))',
+            scrollSnapType: 'x mandatory',
+            scrollBehavior: 'smooth',
+            paddingLeft: 'max(24px, calc(50vw - 145px))',
+            paddingRight: 'max(24px, calc(50vw - 145px))',
             paddingTop: '20px',
             paddingBottom: '20px',
             cursor: 'grab',
@@ -480,7 +484,11 @@ export default function VideoGallery() {
                   inSectionView={inView}
                   onClick={() => {
                     if (!hasMovedRef.current) {
-                      setActiveModalVideo(video)
+                      if (!isCenter) {
+                        scrollToCardIndex(idx)
+                      } else {
+                        setActiveModalVideo(video)
+                      }
                     }
                   }}
                 />
@@ -488,6 +496,41 @@ export default function VideoGallery() {
             })
           )}
         </div>
+
+        {/* Interactive Pagination Dots (One by One) */}
+        {filteredVideos.length > 1 && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              marginTop: '16px',
+            }}
+          >
+            {filteredVideos.map((_, dotIdx) => (
+              <button
+                key={dotIdx}
+                onClick={() => {
+                  handleUserInteractionStart()
+                  scrollToCardIndex(dotIdx)
+                  handleUserInteractionEnd()
+                }}
+                aria-label={`Go to reel ${dotIdx + 1}`}
+                style={{
+                  width: dotIdx === centerIndex ? '28px' : '8px',
+                  height: '8px',
+                  borderRadius: '4px',
+                  background: dotIdx === centerIndex ? '#FF351F' : 'rgba(255,255,255,0.2)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  transition: 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Expanded Modal Player */}
@@ -512,7 +555,7 @@ export default function VideoGallery() {
             display: none !important;
           }
           .edge-fade {
-            width: 32px !important;
+            width: 24px !important;
           }
         }
       `}</style>
@@ -529,12 +572,11 @@ function VideoCard({ video, isCenter, inSectionView, onClick }) {
   const videoRef = useRef(null)
   const cardRef = useRef(null)
 
-  // Autoplay video preview only when visible in section and either centered or hovered
+  // Autoplay video preview only when visible in section and centered or hovered
   useEffect(() => {
     const videoEl = videoRef.current
     if (!videoEl) return
 
-    // Avoid playing every video simultaneously: play only if section is inView AND (isCenter OR isHovered)
     const shouldPlay = inSectionView && (isCenter || isHovered)
 
     if (shouldPlay) {
@@ -543,7 +585,6 @@ function VideoCard({ video, isCenter, inSectionView, onClick }) {
         playPromise
           .then(() => setIsPlaying(true))
           .catch(() => {
-            // Autoplay may be restricted by browser until user gesture
             setIsPlaying(false)
           })
       }
@@ -564,7 +605,7 @@ function VideoCard({ video, isCenter, inSectionView, onClick }) {
         position: 'relative',
         flex: '0 0 auto',
         width: isCenter ? '290px' : '260px',
-        height: isCenter ? '515px' : '462px', // 9:16 aspect ratio
+        height: isCenter ? '515px' : '462px', // 9:16 portrait
         borderRadius: '20px',
         overflow: 'hidden',
         background: '#141414',
@@ -576,8 +617,10 @@ function VideoCard({ video, isCenter, inSectionView, onClick }) {
           : '0 12px 30px rgba(0,0,0,0.6)',
         transform: isCenter ? 'scale(1.02)' : 'scale(0.96)',
         opacity: isCenter ? 1 : 0.72,
-        transition: 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s, border-color 0.4s, box-shadow 0.4s, width 0.4s, height 0.4s',
+        transition: 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s, border-color 0.5s, box-shadow 0.5s, width 0.5s, height 0.5s',
         cursor: 'pointer',
+        scrollSnapAlign: 'center',
+        scrollSnapStop: 'always',
       }}
     >
       {/* Video Element */}
