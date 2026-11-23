@@ -47,7 +47,7 @@ const STATIC_VIDEOS = [
 ]
 
 export function usePortfolioVideos() {
-  const [videos,  setVideos]  = useState([])
+  const [videos,  setVideos]  = useState(STATIC_VIDEOS)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState(null)
 
@@ -60,11 +60,12 @@ export function usePortfolioVideos() {
         .order('sort_order', { ascending: true })
 
       if (err) throw err
-      setVideos(data?.length ? data : STATIC_VIDEOS)
+      if (data && data.length > 0) {
+        setVideos(data)
+      }
       setError(null)
     } catch (err) {
-      console.error('[usePortfolioVideos] Supabase fetch error:', err.message)
-      setVideos(STATIC_VIDEOS)
+      console.warn('[usePortfolioVideos] Supabase query note:', err.message)
       setError(err.message)
     } finally {
       setLoading(false)
@@ -74,10 +75,17 @@ export function usePortfolioVideos() {
   useEffect(() => {
     fetchVideos()
 
-    const channel = supabase
-      .channel('public:portfolio_videos')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'portfolio' }, () => fetchVideos())
-      .subscribe()
+    const channelName = `portfolio_videos_${Math.random().toString(36).slice(2, 9)}`
+    let channel = null
+
+    try {
+      channel = supabase
+        .channel(channelName)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'portfolio' }, () => fetchVideos())
+      channel.subscribe()
+    } catch (realtimeErr) {
+      console.warn('[usePortfolioVideos] Realtime subscription fallback:', realtimeErr)
+    }
 
     const onVisibility = () => {
       if (document.visibilityState === 'visible') fetchVideos()
@@ -85,7 +93,9 @@ export function usePortfolioVideos() {
     document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
-      supabase.removeChannel(channel)
+      if (channel) {
+        supabase.removeChannel(channel)
+      }
       document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [])

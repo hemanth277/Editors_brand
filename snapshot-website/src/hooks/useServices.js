@@ -41,7 +41,7 @@ const STATIC_SERVICES = [
 ]
 
 export function useServices() {
-  const [services, setServices] = useState([])
+  const [services, setServices] = useState(STATIC_SERVICES)
   const [loading,  setLoading]  = useState(true)
   const [error,    setError]    = useState(null)
 
@@ -54,11 +54,12 @@ export function useServices() {
         .order('sort_order', { ascending: true })
 
       if (err) throw err
-      setServices(data?.length ? data : STATIC_SERVICES)
+      if (data && data.length > 0) {
+        setServices(data)
+      }
       setError(null)
     } catch (err) {
-      console.error('[useServices] Supabase fetch error:', err.message)
-      setServices(STATIC_SERVICES)
+      console.warn('[useServices] Supabase query note:', err.message)
       setError(err.message)
     } finally {
       setLoading(false)
@@ -68,10 +69,17 @@ export function useServices() {
   useEffect(() => {
     fetchServices()
 
-    const channel = supabase
-      .channel('public:services')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, () => fetchServices())
-      .subscribe()
+    const channelName = `services_${Math.random().toString(36).slice(2, 9)}`
+    let channel = null
+
+    try {
+      channel = supabase
+        .channel(channelName)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, () => fetchServices())
+      channel.subscribe()
+    } catch (realtimeErr) {
+      console.warn('[useServices] Realtime subscription fallback:', realtimeErr)
+    }
 
     const onVisibility = () => {
       if (document.visibilityState === 'visible') fetchServices()
@@ -79,7 +87,9 @@ export function useServices() {
     document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
-      supabase.removeChannel(channel)
+      if (channel) {
+        supabase.removeChannel(channel)
+      }
       document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [])

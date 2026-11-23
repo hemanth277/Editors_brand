@@ -65,7 +65,7 @@ const STATIC_FALLBACK = [
 ]
 
 export function usePricing() {
-  const [packages, setPackages] = useState([])
+  const [packages, setPackages] = useState(STATIC_FALLBACK)
   const [loading,  setLoading]  = useState(true)
   const [error,    setError]    = useState(null)
 
@@ -78,11 +78,12 @@ export function usePricing() {
         .order('sort_order', { ascending: true })
 
       if (err) throw err
-      setPackages(data?.length ? data : STATIC_FALLBACK)
+      if (data && data.length > 0) {
+        setPackages(data)
+      }
       setError(null)
     } catch (err) {
-      console.error('[usePricing] Supabase fetch error:', err.message)
-      setPackages(STATIC_FALLBACK)
+      console.warn('[usePricing] Supabase query note:', err.message)
       setError(err.message)
     } finally {
       setLoading(false)
@@ -92,14 +93,22 @@ export function usePricing() {
   useEffect(() => {
     fetchPackages()
 
-    const channel = supabase
-      .channel('public:pricing_packages')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'pricing_packages' },
-        () => { fetchPackages() }
-      )
-      .subscribe()
+    // Unique channel per hook instance to prevent duplicate channel conflicts
+    const channelName = `pricing_packages_${Math.random().toString(36).slice(2, 9)}`
+    let channel = null
+
+    try {
+      channel = supabase
+        .channel(channelName)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'pricing_packages' },
+          () => { fetchPackages() }
+        )
+      channel.subscribe()
+    } catch (realtimeErr) {
+      console.warn('[usePricing] Realtime subscription fallback:', realtimeErr)
+    }
 
     const onVisibility = () => {
       if (document.visibilityState === 'visible') fetchPackages()
@@ -107,7 +116,9 @@ export function usePricing() {
     document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
-      supabase.removeChannel(channel)
+      if (channel) {
+        supabase.removeChannel(channel)
+      }
       document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [])
