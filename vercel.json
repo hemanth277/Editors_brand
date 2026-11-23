@@ -1,0 +1,12 @@
+{
+  "buildCommand": "cd snapshot-website && npm run build",
+  "outputDirectory": "snapshot-website/dist",
+  "installCommand": "cd snapshot-website && npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
