@@ -128,21 +128,21 @@ export default function Hero() {
             Specializing in high-retention Reels, Shorts, brand commercials, corporate content, and post-production.
           </motion.p>
 
-          {/* Buttons: Our Services & Start a Project */}
+          {/* Buttons: Our Work & Start a Project */}
           <motion.div
             variants={item}
             style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}
           >
             <a
-              href="#services"
+              href="#our-work"
               onClick={(e) => {
                 e.preventDefault()
-                document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })
+                document.getElementById('our-work')?.scrollIntoView({ behavior: 'smooth' })
               }}
               className="btn-outline"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             >
-              Explore Services <ArrowRight size={15} />
+              Explore Reels <ArrowRight size={15} />
             </a>
 
             <a
