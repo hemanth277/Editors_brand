@@ -1,22 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Safe default fallback to project's Supabase credentials if Vercel env vars are not set
+const DEFAULT_SUPABASE_URL = 'https://gjvcwcfkjpvdkzyqkleu.supabase.co'
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_uj1xYQgK5wDa5FSJOP6gPg_yvthhZkj'
 
-if (!supabaseUrl || !supabaseAnon) {
-  console.warn(
-    '[Supabase] Missing env vars VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY.\n' +
-    'Copy .env.example → .env and fill in your project credentials.'
-  )
-}
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL
+const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY
 
 export const supabase = createClient(
-  supabaseUrl  || '',
-  supabaseAnon || '',
+  supabaseUrl,
+  supabaseAnon,
   {
     auth: {
       autoRefreshToken: true,
-      persistSession:   true,
+      persistSession: true,
       detectSessionInUrl: true,
     },
   }

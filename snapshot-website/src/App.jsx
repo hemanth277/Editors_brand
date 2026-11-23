@@ -19,38 +19,39 @@ export default function App() {
   const isAdminRoute = location.pathname.startsWith('/admin')
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1800)
+    // Quick 600ms branded entrance
+    const timer = setTimeout(() => setLoading(false), 600)
     return () => clearTimeout(timer)
   }, [])
 
-  if (loading && !isAdminRoute) return <LoadingScreen />
-
-  if (isAdminRoute) {
-    return (
-      <Routes location={location} key={location.pathname}>
-        <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={
-          <RequireAdmin>
-            <AdminDashboard />
-          </RequireAdmin>
-        } />
-      </Routes>
-    )
-  }
-
   return (
     <>
-      <CustomCursor />
-      <Navbar />
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/"         element={<Home />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/our-work" element={<PortfolioPage />} />
-          <Route path="/contact"  element={<ContactPage />} />
-        </Routes>
+      <AnimatePresence>
+        {loading && !isAdminRoute && <LoadingScreen key="loader" />}
       </AnimatePresence>
-      <Footer />
+
+      {isAdminRoute ? (
+        <Routes location={location} key={location.pathname}>
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={
+            <RequireAdmin>
+              <AdminDashboard />
+            </RequireAdmin>
+          } />
+        </Routes>
+      ) : (
+        <>
+          <CustomCursor />
+          <Navbar />
+          <Routes location={location} key={location.pathname}>
+            <Route path="/"         element={<Home />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/our-work" element={<PortfolioPage />} />
+            <Route path="/contact"  element={<ContactPage />} />
+          </Routes>
+          <Footer />
+        </>
+      )}
     </>
   )
 }
