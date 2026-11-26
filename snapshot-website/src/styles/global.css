@@ -304,32 +304,90 @@ body {
 }
 
 /* ---- Form ---- */
-.form-input {
+.form-input,
+.form-select,
+.form-textarea {
   width: 100%;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: var(--text-primary);
+  background-color: #121212 !important;
+  background: #121212 !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  color: #FFFFFF !important;
   padding: 14px 16px;
   font-family: var(--font-sans);
-  font-size: 1rem;
-  transition: border-color 0.3s;
+  font-size: 0.92rem;
+  transition: border-color 0.25s, box-shadow 0.25s;
   outline: none;
-  border-radius: 2px;
-  -webkit-appearance: none;
+  border-radius: 4px;
+  color-scheme: dark;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: #FF351F !important;
+  box-shadow: 0 0 0 1px rgba(255,53,31,0.3) !important;
+  background-color: #161616 !important;
+  background: #161616 !important;
+  color: #FFFFFF !important;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #777777 !important;
+  opacity: 1;
+}
+
+/* Dropdown select options styling */
+.form-select option {
+  background-color: #141414 !important;
+  background: #141414 !important;
+  color: #FFFFFF !important;
+  padding: 10px;
+}
+
+select.form-select {
   appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%23A0A0A0' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 16px center !important;
+  padding-right: 42px;
 }
-.form-input:focus { border-color: var(--accent); }
-.form-input::placeholder { color: rgba(255,255,255,0.3); }
-.form-input option { background: #1a1a1a; color: #fff; }
-select.form-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23A0A0A0' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  padding-right: 40px;
+
+/* Native date picker calendar icon in dark mode */
+input[type="date"].form-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+  cursor: pointer;
 }
+
+/* Prevent browser white autofill background in Chrome / Safari / Edge */
+input.form-input:-webkit-autofill,
+input.form-input:-webkit-autofill:hover,
+input.form-input:-webkit-autofill:focus,
+input.form-input:-webkit-autofill:active,
+textarea.form-textarea:-webkit-autofill,
+textarea.form-textarea:-webkit-autofill:hover,
+textarea.form-textarea:-webkit-autofill:focus,
+textarea.form-textarea:-webkit-autofill:active,
+select.form-select:-webkit-autofill,
+select.form-select:-webkit-autofill:hover,
+select.form-select:-webkit-autofill:focus,
+select.form-select:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #121212 inset !important;
+  box-shadow: 0 0 0 1000px #121212 inset !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: #FFFFFF !important;
+}
+
 /* Mobile: 16px font to prevent iOS zoom */
 @media (max-width: 640px) {
-  .form-input { font-size: 1rem; padding: 16px; }
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 1rem !important;
+    padding: 14px;
+  }
 }
 
 .form-label {
@@ -338,11 +396,11 @@ select.form-input {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: #A0A0A0;
   margin-bottom: 8px;
 }
 .form-error {
-  color: var(--accent);
+  color: #FF351F;
   font-size: 0.75rem;
   margin-top: 4px;
 }

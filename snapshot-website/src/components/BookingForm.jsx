@@ -24,13 +24,13 @@ const BUDGET_RANGES = [
 
 const defaultForm = {
   fullName: '',
+  brandName: '',
   email: '',
   phone: '',
-  brandName: '',
   contentType: '',
-  package: '',
-  preferredDate: '',
   budget: '',
+  preferredDate: '',
+  package: '',
   description: '',
 }
 
@@ -52,11 +52,11 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
   const validate = () => {
     const e = {}
     if (!form.fullName.trim())   e.fullName    = 'Full name is required'
-    if (!form.email.trim())      e.email       = 'Email address is required'
+    if (!form.email.trim())      e.email       = 'Business email is required'
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Enter a valid business email'
     if (!form.phone.trim())      e.phone       = 'Phone / WhatsApp number is required'
     else if (!/^\+?[\d\s\-]{7,15}$/.test(form.phone.trim())) e.phone = 'Enter a valid phone number'
-    if (!form.contentType)       e.contentType = 'Please select content type'
+    if (!form.contentType)       e.contentType = 'Please select type of content required'
     return e
   }
 
@@ -74,8 +74,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
     setErrorMsg('')
 
     try {
-      // 1. Insert customer record into customers table
-      // Note: We do NOT chain .select() because public users only have INSERT policy, not SELECT policy
+      // 1. Insert customer record in customers table (fire-and-forget for client linking)
       try {
         await supabase
           .from('customers')
@@ -85,29 +84,29 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             email: form.email.trim().toLowerCase(),
           }])
       } catch (custErr) {
-        console.warn('Customer entry notice:', custErr)
+        console.warn('[BookingForm] Customer insert note:', custErr)
       }
 
-      // 2. Format description & requirements
+      // 2. Format structured project requirements with all 10 fields preserved
       const structuredRequirements = [
-        form.brandName ? `Brand: ${form.brandName.trim()}` : '',
+        form.brandName?.trim() ? `Brand Name: ${form.brandName.trim()}` : '',
         form.budget ? `Budget: ${form.budget}` : '',
         form.preferredDate ? `Target Date: ${form.preferredDate}` : '',
-        form.description ? `Project Scope: ${form.description.trim()}` : '',
+        form.package?.trim() ? `Package: ${form.package.trim()}` : '',
+        form.description?.trim() ? `Brief: ${form.description.trim()}` : '',
       ].filter(Boolean).join(' | ')
 
-      // 3. Insert into 'bookings' table
-      // Note: Do NOT chain .select() because public users have INSERT policy only (RLS requires admin for SELECT)
+      // 3. Insert into Supabase 'bookings' table
       const bookingPayload = {
         full_name:    form.fullName.trim(),
         phone:        form.phone.trim(),
         email:        form.email.trim().toLowerCase(),
         event_type:   form.contentType,
         event_date:   form.preferredDate || new Date().toISOString().split('T')[0],
-        location:     form.brandName?.trim() || 'Digital / Remote Project',
-        package_name: form.package || 'Custom Content Package',
-        requirements: structuredRequirements || null,
-        status:       'pending',
+        location:     form.brandName?.trim() || 'Direct Project',
+        package_name: form.package?.trim() || 'Custom Content Package',
+        requirements: structuredRequirements || (form.description?.trim() || null),
+        status:       'pending', // matches database check constraint ('pending','confirmed','completed','cancelled')
       }
 
       const { error: bookErr } = await supabase
@@ -119,11 +118,11 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
       setStatus('success')
       setForm(defaultForm)
     } catch (err) {
-      console.error('Project inquiry submission error:', err)
+      console.error('[BookingForm] Submission error:', err)
       setStatus('error')
       setErrorMsg(
         err?.message ||
-        'Submission encountered a network issue. Please message us directly at hello@snapshotagency.in or call +91 98765 43210.'
+        'Unable to submit your inquiry at this moment. Please email us directly at hello@snapshotagency.in or call +91 98765 43210.'
       )
     }
   }
@@ -136,7 +135,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
         maxWidth: inline ? '100%' : '720px',
         maxHeight: inline ? 'none' : '90vh',
         overflowY: 'auto',
-        borderRadius: inline ? '4px' : '6px',
+        borderRadius: inline ? '6px' : '8px',
         border: '1px solid rgba(255,255,255,0.08)',
         padding: 'clamp(28px, 5vw, 48px)',
         position: 'relative',
@@ -204,7 +203,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             style={{
               background: 'rgba(0, 200, 100, 0.08)',
               border: '1px solid rgba(0, 200, 100, 0.3)',
-              borderRadius: '2px',
+              borderRadius: '4px',
               padding: '24px',
               marginBottom: '32px',
               display: 'flex',
@@ -229,7 +228,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
                 Inquiry Received Successfully!
               </h3>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: '#A0A0A0', lineHeight: 1.6 }}>
-                Thank you for choosing SNAPSHOT. A dedicated creative director will review your brief and contact you shortly with concept plans and pricing proposals.
+                Thank you for choosing SNAPSHOT. Your enquiry has been registered and our team has been notified. We will review your brief and contact you shortly.
               </p>
             </div>
           </motion.div>
@@ -241,7 +240,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
         <div style={{
           background: 'rgba(255, 53, 31, 0.08)',
           border: '1px solid rgba(255, 53, 31, 0.3)',
-          borderRadius: '2px',
+          borderRadius: '4px',
           padding: '16px',
           marginBottom: '24px',
           display: 'flex',
@@ -264,7 +263,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
         }}
         className="booking-form-grid">
 
-          {/* Full Name */}
+          {/* 1. Full Name */}
           <div>
             <label className="form-label">Full Name *</label>
             <input
@@ -278,19 +277,19 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             {errors.fullName && <p className="form-error">{errors.fullName}</p>}
           </div>
 
-          {/* Business / Brand Name */}
+          {/* 2. Business / Brand Name */}
           <div>
             <label className="form-label">Business / Brand Name</label>
             <input
               type="text"
-              placeholder="e.g. Apex Apparel / Creator Channel"
+              placeholder="e.g. Apex Apparel / Creator Studio"
               value={form.brandName}
               onChange={handleChange('brandName')}
               className="form-input"
             />
           </div>
 
-          {/* Email */}
+          {/* 3. Business Email */}
           <div>
             <label className="form-label">Business Email *</label>
             <input
@@ -304,7 +303,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             {errors.email && <p className="form-error">{errors.email}</p>}
           </div>
 
-          {/* Phone / WhatsApp */}
+          {/* 4. Phone / WhatsApp Number */}
           <div>
             <label className="form-label">Phone / WhatsApp Number *</label>
             <input
@@ -318,7 +317,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             {errors.phone && <p className="form-error">{errors.phone}</p>}
           </div>
 
-          {/* Type of Content Required */}
+          {/* 5. Type of Content Required */}
           <div>
             <label className="form-label">Type of Content Required *</label>
             <select
@@ -335,7 +334,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             {errors.contentType && <p className="form-error">{errors.contentType}</p>}
           </div>
 
-          {/* Preferred Budget */}
+          {/* 6. Preferred Budget Range */}
           <div>
             <label className="form-label">Preferred Budget Range</label>
             <select
@@ -350,7 +349,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             </select>
           </div>
 
-          {/* Preferred Project Date */}
+          {/* 7. Target Completion / Shoot Date */}
           <div>
             <label className="form-label">Target Completion / Shoot Date</label>
             <input
@@ -362,7 +361,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             />
           </div>
 
-          {/* Package Selection */}
+          {/* 8. Selected Package */}
           <div>
             <label className="form-label">Selected Package (Optional)</label>
             <input
@@ -374,7 +373,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             />
           </div>
 
-          {/* Project Description */}
+          {/* 9. Project Brief & Details */}
           <div style={{ gridColumn: '1 / -1' }}>
             <label className="form-label">Project Brief & Details</label>
             <textarea
@@ -387,7 +386,7 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
           </div>
         </div>
 
-        {/* Submit button */}
+        {/* 10. Submit button */}
         <div style={{ marginTop: '28px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '16px' }}>
           <button
             type="submit"

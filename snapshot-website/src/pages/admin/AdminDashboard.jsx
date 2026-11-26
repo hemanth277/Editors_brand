@@ -808,6 +808,24 @@ function VideoGalleryManagerTab() {
   )
 }
 
+// Helper to extract fields from structured requirements string
+function parseRequirements(reqStr) {
+  if (!reqStr) return { brandName: '', budget: '', targetDate: '', package: '', brief: '' }
+  const result = { brandName: '', budget: '', targetDate: '', package: '', brief: '' }
+  const parts = reqStr.split(' | ')
+  parts.forEach(p => {
+    if (p.startsWith('Brand Name:')) result.brandName = p.replace('Brand Name:', '').trim()
+    else if (p.startsWith('Brand:')) result.brandName = p.replace('Brand:', '').trim()
+    else if (p.startsWith('Budget:')) result.budget = p.replace('Budget:', '').trim()
+    else if (p.startsWith('Target Date:')) result.targetDate = p.replace('Target Date:', '').trim()
+    else if (p.startsWith('Package:')) result.package = p.replace('Package:', '').trim()
+    else if (p.startsWith('Brief:')) result.brief = p.replace('Brief:', '').trim()
+    else if (p.startsWith('Project Scope:')) result.brief = p.replace('Project Scope:', '').trim()
+    else if (!result.brief) result.brief = p.trim()
+  })
+  return result
+}
+
 // ══════════════════════════════════════════════════════════════
 //  PROJECT INQUIRIES TAB (Compatible with 'bookings' table)
 // ══════════════════════════════════════════════════════════════
@@ -823,13 +841,44 @@ function InquiriesTab() {
   const load = async () => {
     setLoading(true)
     let q = supabase.from('bookings').select('*').order('created_at', { ascending: false })
-    if (statusFilter !== 'all') q = q.eq('status', statusFilter)
-    const { data } = await q
+    if (statusFilter !== 'all') {
+      if (statusFilter === 'new') {
+        q = q.in('status', ['new', 'pending'])
+      } else {
+        q = q.eq('status', statusFilter)
+      }
+    }
+    const { data, error } = await q
+    if (error) {
+      console.warn('[AdminDashboard] Inquiries fetch error:', error.message)
+    }
     setInquiries(data || [])
     setLoading(false)
   }
 
   useEffect(() => { load() }, [statusFilter])
+
+  // Realtime subscription for automatic instant updates on new submissions
+  useEffect(() => {
+    const channelName = `admin_inquiries_${Math.random().toString(36).slice(2, 9)}`
+    let channel = null
+    try {
+      channel = supabase
+        .channel(channelName)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
+          load()
+        })
+      channel.subscribe()
+    } catch (e) {
+      console.warn('[AdminDashboard] Realtime subscription notice:', e)
+    }
+
+    return () => {
+      if (channel) {
+        try { supabase.removeChannel(channel) } catch { /* ignore */ }
+      }
+    }
+  }, [])
 
   const updateStatus = async (id, status) => {
     setUpdating(true)
@@ -843,14 +892,16 @@ function InquiriesTab() {
     b.full_name?.toLowerCase().includes(search.toLowerCase()) ||
     b.email?.toLowerCase().includes(search.toLowerCase()) ||
     b.phone?.includes(search) ||
-    b.event_type?.toLowerCase().includes(search.toLowerCase())
+    b.event_type?.toLowerCase().includes(search.toLowerCase()) ||
+    b.location?.toLowerCase().includes(search.toLowerCase()) ||
+    b.requirements?.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
     <div>
       {/* Filters */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+        <div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
           <Search size={15} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666' }} />
           <input
             placeholder="Search by client, brand, email or type..."
@@ -865,7 +916,7 @@ function InquiriesTab() {
           style={{ ...S.select, width: 'auto', minWidth: '160px' }}
         >
           <option value="all">All Statuses</option>
-          <option value="new">New</option>
+          <option value="new">New / Pending</option>
           <option value="contacted">Contacted</option>
           <option value="in progress">In Progress</option>
           <option value="completed">Completed</option>
@@ -881,14 +932,14 @@ function InquiriesTab() {
         <div style={{ textAlign: 'center', padding: '64px' }}><Loader size={28} style={{ color: '#FF351F', animation: 'spin 1s linear infinite' }} /></div>
       ) : filtered.length === 0 ? (
         <div style={{ ...S.card, textAlign: 'center', color: '#A0A0A0', padding: '64px' }}>
-          No inquiries found.
+          No project inquiries found. Newly submitted inquiries will appear here automatically.
         </div>
       ) : (
         <div style={{ ...S.card, padding: 0, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', fontFamily: 'Inter, sans-serif' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: '#111' }}>
-                {['Client / Brand', 'Contact', 'Content Type', 'Project Date', 'Package', 'Status', 'Actions'].map(h => (
+                {['Client / Brand', 'Contact', 'Content Type', 'Budget', 'Target Date', 'Package', 'Status', 'Submitted', 'Actions'].map(h => (
                   <th key={h} style={{ padding: '14px 16px', textAlign: 'left', color: '#A0A0A0', fontWeight: 600, fontSize: '0.72rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                     {h}
                   </th>
@@ -898,28 +949,49 @@ function InquiriesTab() {
             <tbody>
               {filtered.map(b => {
                 const sc = STATUS_COLORS[b.status?.toLowerCase()] || STATUS_COLORS.new
+                const parsed = parseRequirements(b.requirements)
+                const brand = parsed.brandName || (b.location && b.location !== 'Direct Project' && b.location !== 'Digital / Remote Project' ? b.location : '')
                 return (
                   <tr key={b.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.15s' }}
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
-                    <td style={{ padding: '14px 16px', fontWeight: 600, color: '#fff' }}>{b.full_name}</td>
+                    <td style={{ padding: '14px 16px', fontWeight: 600, color: '#fff' }}>
+                      <div>{b.full_name}</div>
+                      {brand && (
+                        <div style={{ fontSize: '0.72rem', color: '#FF351F', fontWeight: 500, marginTop: '2px' }}>
+                          {brand}
+                        </div>
+                      )}
+                    </td>
                     <td style={{ padding: '14px 16px', color: '#A0A0A0' }}>
                       <div>{b.email}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#666' }}>{b.phone}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '2px' }}>{b.phone}</div>
                     </td>
-                    <td style={{ padding: '14px 16px', color: '#FF351F', fontWeight: 500 }}>{b.event_type}</td>
-                    <td style={{ padding: '14px 16px', color: '#A0A0A0' }}>{b.event_date ? new Date(b.event_date).toLocaleDateString('en-IN') : '—'}</td>
-                    <td style={{ padding: '14px 16px', color: '#A0A0A0' }}>{b.package_name}</td>
+                    <td style={{ padding: '14px 16px', color: '#fff', fontWeight: 500 }}>
+                      <span style={{ color: '#FF351F' }}>{b.event_type}</span>
+                    </td>
+                    <td style={{ padding: '14px 16px', color: '#A0A0A0' }}>
+                      {parsed.budget || '—'}
+                    </td>
+                    <td style={{ padding: '14px 16px', color: '#A0A0A0' }}>
+                      {b.event_date ? new Date(b.event_date).toLocaleDateString('en-IN') : '—'}
+                    </td>
+                    <td style={{ padding: '14px 16px', color: '#A0A0A0' }}>
+                      {b.package_name || 'Custom'}
+                    </td>
                     <td style={{ padding: '14px 16px' }}>
-                      <span style={S.badge(sc.bg, sc.text, sc.border)}>{b.status}</span>
+                      <span style={S.badge(sc.bg, sc.text, sc.border)}>{b.status === 'pending' ? 'new' : b.status}</span>
+                    </td>
+                    <td style={{ padding: '14px 16px', color: '#666', fontSize: '0.75rem' }}>
+                      {b.created_at ? new Date(b.created_at).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
                     </td>
                     <td style={{ padding: '14px 16px' }}>
                       <button
                         onClick={() => { setSelected(b); setNotes(b.admin_notes || '') }}
                         style={{ ...S.btnSecondary, padding: '6px 12px', fontSize: '0.75rem' }}
                       >
-                        Manage
+                        View Details
                       </button>
                     </td>
                   </tr>
@@ -930,79 +1002,100 @@ function InquiriesTab() {
         </div>
       )}
 
-      {/* Modal */}
-      {selected && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ ...S.card, width: '100%', maxWidth: '540px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', fontWeight: 700 }}>Inquiry Details</h3>
-              <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', color: '#A0A0A0', cursor: 'pointer' }}><X size={18} /></button>
-            </div>
+      {/* Modal - Complete 10 Field Enquiry View */}
+      {selected && (() => {
+        const parsed = parseRequirements(selected.requirements)
+        const brand = parsed.brandName || (selected.location && selected.location !== 'Direct Project' && selected.location !== 'Digital / Remote Project' ? selected.location : '—')
+        const budget = parsed.budget || '—'
+        const brief = parsed.brief || selected.requirements || 'No additional project brief entered.'
+        const submissionDate = selected.created_at ? new Date(selected.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '—'
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px', fontSize: '0.83rem', fontFamily: 'Inter, sans-serif' }}>
-              <div><span style={{ color: '#666', display: 'block', fontSize: '0.72rem' }}>CLIENT / BRAND</span><strong>{selected.full_name}</strong></div>
-              <div><span style={{ color: '#666', display: 'block', fontSize: '0.72rem' }}>PHONE</span>{selected.phone}</div>
-              <div><span style={{ color: '#666', display: 'block', fontSize: '0.72rem' }}>EMAIL</span>{selected.email}</div>
-              <div><span style={{ color: '#666', display: 'block', fontSize: '0.72rem' }}>CONTENT TYPE</span><span style={{ color: '#FF351F' }}>{selected.event_type}</span></div>
-              <div><span style={{ color: '#666', display: 'block', fontSize: '0.72rem' }}>PROJECT DATE</span>{selected.event_date ? new Date(selected.event_date).toLocaleDateString('en-IN') : '—'}</div>
-              <div><span style={{ color: '#666', display: 'block', fontSize: '0.72rem' }}>LOCATION / HUB</span>{selected.location}</div>
-              <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#666', display: 'block', fontSize: '0.72rem' }}>PACKAGE</span>{selected.package_name}</div>
-              {selected.requirements && (
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+            <div style={{ ...S.card, width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.25rem', fontWeight: 700, color: '#fff' }}>
+                  Project Inquiry Details
+                </h3>
+                <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', color: '#A0A0A0', cursor: 'pointer' }}><X size={18} /></button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px', fontSize: '0.84rem', fontFamily: 'Inter, sans-serif' }}>
+                {/* 1. Full Name */}
+                <div><span style={{ color: '#666', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>1. FULL NAME</span><strong style={{ color: '#fff' }}>{selected.full_name}</strong></div>
+                {/* 2. Brand Name */}
+                <div><span style={{ color: '#666', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>2. BUSINESS / BRAND NAME</span><span style={{ color: '#FF351F', fontWeight: 600 }}>{brand}</span></div>
+                {/* 3. Business Email */}
+                <div><span style={{ color: '#666', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>3. BUSINESS EMAIL</span><a href={`mailto:${selected.email}`} style={{ color: '#00b4ff', textDecoration: 'none' }}>{selected.email}</a></div>
+                {/* 4. Phone / WhatsApp */}
+                <div><span style={{ color: '#666', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>4. PHONE / WHATSAPP NUMBER</span><a href={`tel:${selected.phone}`} style={{ color: '#fff', textDecoration: 'none' }}>{selected.phone}</a></div>
+                {/* 5. Content Type */}
+                <div><span style={{ color: '#666', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>5. TYPE OF CONTENT REQUIRED</span><span style={{ color: '#FF351F' }}>{selected.event_type}</span></div>
+                {/* 6. Budget Range */}
+                <div><span style={{ color: '#666', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>6. PREFERRED BUDGET RANGE</span><strong style={{ color: '#00c864' }}>{budget}</strong></div>
+                {/* 7. Target Date */}
+                <div><span style={{ color: '#666', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>7. TARGET COMPLETION / SHOOT DATE</span>{selected.event_date ? new Date(selected.event_date).toLocaleDateString('en-IN', { dateStyle: 'medium' }) : '—'}</div>
+                {/* 8. Package */}
+                <div><span style={{ color: '#666', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>8. SELECTED PACKAGE</span>{selected.package_name || 'Custom'}</div>
+                {/* 10. Submission Date & Time */}
+                <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#666', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>10. SUBMISSION DATE & TIME</span><span style={{ color: '#A0A0A0' }}>{submissionDate}</span></div>
+
+                {/* 9. Project Brief */}
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <span style={{ color: '#666', display: 'block', fontSize: '0.72rem' }}>PROJECT BRIEF / REQUIREMENTS</span>
-                  <div style={{ background: '#0A0A0A', padding: '10px 14px', borderRadius: '4px', marginTop: '4px', color: '#ccc', lineHeight: 1.5 }}>
-                    {selected.requirements}
+                  <span style={{ color: '#666', display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>9. PROJECT BRIEF & DETAILS</span>
+                  <div style={{ background: '#0A0A0A', padding: '12px 14px', borderRadius: '4px', marginTop: '6px', color: '#e0e0e0', lineHeight: 1.6, border: '1px solid rgba(255,255,255,0.06)' }}>
+                    {brief}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Status change */}
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontSize: '0.75rem', color: '#A0A0A0', display: 'block', marginBottom: '6px' }}>UPDATE STATUS</label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {['new', 'contacted', 'in progress', 'completed', 'cancelled'].map(s => (
-                  <button
-                    key={s}
-                    disabled={updating}
-                    onClick={() => updateStatus(selected.id, s)}
-                    style={{
-                      ...S.btnSecondary,
-                      padding: '6px 14px',
-                      fontSize: '0.75rem',
-                      background: selected.status === s ? '#FF351F' : 'rgba(255,255,255,0.05)',
-                      borderColor: selected.status === s ? '#FF351F' : 'rgba(255,255,255,0.1)',
-                      color: selected.status === s ? '#fff' : '#A0A0A0',
-                      textTransform: 'capitalize',
-                    }}
-                  >
-                    {s}
-                  </button>
-                ))}
+              {/* Status change */}
+              <div style={{ marginBottom: '16px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
+                <label style={{ fontSize: '0.72rem', color: '#A0A0A0', display: 'block', marginBottom: '8px', fontWeight: 600 }}>UPDATE INQUIRY STATUS</label>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {['pending', 'contacted', 'in progress', 'completed', 'cancelled'].map(s => (
+                    <button
+                      key={s}
+                      disabled={updating}
+                      onClick={() => updateStatus(selected.id, s)}
+                      style={{
+                        ...S.btnSecondary,
+                        padding: '6px 14px',
+                        fontSize: '0.75rem',
+                        background: selected.status === s ? '#FF351F' : 'rgba(255,255,255,0.05)',
+                        borderColor: selected.status === s ? '#FF351F' : 'rgba(255,255,255,0.1)',
+                        color: selected.status === s ? '#fff' : '#A0A0A0',
+                        textTransform: 'capitalize',
+                      }}
+                    >
+                      {s === 'pending' ? 'new / pending' : s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '0.72rem', color: '#A0A0A0', display: 'block', marginBottom: '8px', fontWeight: 600 }}>INTERNAL ADMIN NOTES</label>
+                <textarea
+                  rows={3}
+                  value={adminNotes}
+                  onChange={e => setNotes(e.target.value)}
+                  placeholder="Notes on client calls, budget quotes, deliverables..."
+                  style={{ ...S.input, resize: 'vertical' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button onClick={() => setSelected(null)} style={S.btnSecondary}>Close</button>
+                <button onClick={() => updateStatus(selected.id, selected.status)} disabled={updating} style={S.btn}>
+                  {updating ? 'Saving...' : 'Save Notes'}
+                </button>
               </div>
             </div>
-
-            {/* Notes */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ fontSize: '0.75rem', color: '#A0A0A0', display: 'block', marginBottom: '6px' }}>ADMIN NOTES</label>
-              <textarea
-                rows={3}
-                value={adminNotes}
-                onChange={e => setNotes(e.target.value)}
-                placeholder="Internal notes on client discussions, deliverables, budget..."
-                style={{ ...S.input, resize: 'vertical' }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button onClick={() => setSelected(null)} style={S.btnSecondary}>Close</button>
-              <button onClick={() => updateStatus(selected.id, selected.status)} disabled={updating} style={S.btn}>
-                {updating ? 'Saving...' : 'Save Notes'}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }
