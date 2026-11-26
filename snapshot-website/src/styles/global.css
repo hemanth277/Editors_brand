@@ -303,10 +303,22 @@ body {
   .faq-question { font-size: 0.9rem; padding: 20px 0; }
 }
 
-/* ---- Form ---- */
+/* ---- Form & Project Enquiry Form Elements ---- */
+.project-enquiry-form input,
+.project-enquiry-form select,
+.project-enquiry-form textarea,
+.project-enquiry-container input,
+.project-enquiry-container select,
+.project-enquiry-container textarea,
+form.project-enquiry-form input,
+form.project-enquiry-form select,
+form.project-enquiry-form textarea,
 .form-input,
 .form-select,
-.form-textarea {
+.form-textarea,
+input.form-input,
+select.form-select,
+textarea.form-textarea {
   width: 100%;
   background-color: #121212 !important;
   background: #121212 !important;
@@ -321,37 +333,56 @@ body {
   color-scheme: dark;
 }
 
+.project-enquiry-form input:focus,
+.project-enquiry-form select:focus,
+.project-enquiry-form textarea:focus,
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus {
   border-color: #FF351F !important;
-  box-shadow: 0 0 0 1px rgba(255,53,31,0.3) !important;
+  box-shadow: 0 0 0 1px rgba(255,53,31,0.4) !important;
   background-color: #161616 !important;
   background: #161616 !important;
   color: #FFFFFF !important;
+  outline: none !important;
 }
 
+.project-enquiry-form input::placeholder,
+.project-enquiry-form textarea::placeholder,
 .form-input::placeholder,
 .form-textarea::placeholder {
   color: #777777 !important;
-  opacity: 1;
+  opacity: 1 !important;
 }
 
 /* Dropdown select options styling */
-.form-select option {
-  background-color: #141414 !important;
-  background: #141414 !important;
+.project-enquiry-form select option,
+.form-select option,
+select option {
+  background-color: #121212 !important;
+  background: #121212 !important;
   color: #FFFFFF !important;
   padding: 10px;
 }
 
+.project-enquiry-form select,
 select.form-select {
-  appearance: none;
-  -webkit-appearance: none;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-color: #121212 !important;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%23A0A0A0' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
   background-position: right 16px center !important;
-  padding-right: 42px;
+  padding-right: 42px !important;
+  cursor: pointer;
+}
+
+.project-enquiry-form textarea,
+textarea.form-textarea {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  resize: vertical !important;
 }
 
 /* Native date picker calendar icon in dark mode */

@@ -34,6 +34,35 @@ const defaultForm = {
   description: '',
 }
 
+const darkFieldStyle = {
+  backgroundColor: '#121212',
+  background: '#121212',
+  color: '#FFFFFF',
+  border: '1px solid rgba(255, 255, 255, 0.14)',
+  borderRadius: '4px',
+  colorScheme: 'dark',
+}
+
+const darkSelectStyle = {
+  ...darkFieldStyle,
+  WebkitAppearance: 'none',
+  MozAppearance: 'none',
+  appearance: 'none',
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%23A0A0A0' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")`,
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'right 16px center',
+  paddingRight: '42px',
+  cursor: 'pointer',
+}
+
+const darkTextareaStyle = {
+  ...darkFieldStyle,
+  resize: 'vertical',
+  minHeight: '110px',
+  WebkitAppearance: 'none',
+  appearance: 'none',
+}
+
 export default function BookingForm({ selectedPackage = null, onClose = null, inline = true }) {
   const [form, setForm] = useState(defaultForm)
   const [status, setStatus] = useState('idle') // idle | loading | success | error
@@ -255,13 +284,13 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} noValidate>
+      <form onSubmit={handleSubmit} noValidate className="project-enquiry-form">
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '20px',
         }}
-        className="booking-form-grid">
+        className="booking-form-grid project-enquiry-grid">
 
           {/* 1. Full Name */}
           <div>
@@ -271,8 +300,11 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
               placeholder="e.g. Rahul Sharma"
               value={form.fullName}
               onChange={handleChange('fullName')}
-              className="form-input"
-              style={{ borderColor: errors.fullName ? '#FF351F' : undefined }}
+              className="form-input project-enquiry-input"
+              style={{
+                ...darkFieldStyle,
+                borderColor: errors.fullName ? '#FF351F' : 'rgba(255,255,255,0.14)',
+              }}
             />
             {errors.fullName && <p className="form-error">{errors.fullName}</p>}
           </div>
@@ -285,7 +317,8 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
               placeholder="e.g. Apex Apparel / Creator Studio"
               value={form.brandName}
               onChange={handleChange('brandName')}
-              className="form-input"
+              className="form-input project-enquiry-input"
+              style={darkFieldStyle}
             />
           </div>
 
@@ -297,8 +330,11 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
               placeholder="name@company.com"
               value={form.email}
               onChange={handleChange('email')}
-              className="form-input"
-              style={{ borderColor: errors.email ? '#FF351F' : undefined }}
+              className="form-input project-enquiry-input"
+              style={{
+                ...darkFieldStyle,
+                borderColor: errors.email ? '#FF351F' : 'rgba(255,255,255,0.14)',
+              }}
             />
             {errors.email && <p className="form-error">{errors.email}</p>}
           </div>
@@ -311,8 +347,11 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
               placeholder="+91 98765 43210"
               value={form.phone}
               onChange={handleChange('phone')}
-              className="form-input"
-              style={{ borderColor: errors.phone ? '#FF351F' : undefined }}
+              className="form-input project-enquiry-input"
+              style={{
+                ...darkFieldStyle,
+                borderColor: errors.phone ? '#FF351F' : 'rgba(255,255,255,0.14)',
+              }}
             />
             {errors.phone && <p className="form-error">{errors.phone}</p>}
           </div>
@@ -323,12 +362,15 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             <select
               value={form.contentType}
               onChange={handleChange('contentType')}
-              className="form-select"
-              style={{ borderColor: errors.contentType ? '#FF351F' : undefined }}
+              className="form-select project-enquiry-select"
+              style={{
+                ...darkSelectStyle,
+                borderColor: errors.contentType ? '#FF351F' : 'rgba(255,255,255,0.14)',
+              }}
             >
-              <option value="">Select content type...</option>
+              <option value="" style={{ backgroundColor: '#121212', color: '#FFFFFF' }}>Select content type...</option>
               {CONTENT_TYPES.map(type => (
-                <option key={type} value={type}>{type}</option>
+                <option key={type} value={type} style={{ backgroundColor: '#121212', color: '#FFFFFF' }}>{type}</option>
               ))}
             </select>
             {errors.contentType && <p className="form-error">{errors.contentType}</p>}
@@ -340,11 +382,12 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
             <select
               value={form.budget}
               onChange={handleChange('budget')}
-              className="form-select"
+              className="form-select project-enquiry-select"
+              style={darkSelectStyle}
             >
-              <option value="">Select budget range...</option>
+              <option value="" style={{ backgroundColor: '#121212', color: '#FFFFFF' }}>Select budget range...</option>
               {BUDGET_RANGES.map(b => (
-                <option key={b} value={b}>{b}</option>
+                <option key={b} value={b} style={{ backgroundColor: '#121212', color: '#FFFFFF' }}>{b}</option>
               ))}
             </select>
           </div>
@@ -357,7 +400,8 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
               value={form.preferredDate}
               onChange={handleChange('preferredDate')}
               min={new Date().toISOString().split('T')[0]}
-              className="form-input"
+              className="form-input project-enquiry-input"
+              style={darkFieldStyle}
             />
           </div>
 
@@ -369,7 +413,8 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
               placeholder="e.g. Professional Content Package"
               value={form.package}
               onChange={handleChange('package')}
-              className="form-input"
+              className="form-input project-enquiry-input"
+              style={darkFieldStyle}
             />
           </div>
 
@@ -381,7 +426,8 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
               placeholder="Tell us about your brand vision, target audience, specific deliverables, or references..."
               value={form.description}
               onChange={handleChange('description')}
-              className="form-textarea"
+              className="form-textarea project-enquiry-textarea"
+              style={darkTextareaStyle}
             />
           </div>
         </div>
@@ -420,6 +466,68 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
         @keyframes spin { to { transform: rotate(360deg); } }
         @media (max-width: 640px) {
           .booking-form-grid { grid-template-columns: 1fr !important; }
+        }
+
+        /* Direct High-Specificity Styling to eliminate ANY white backgrounds */
+        .project-enquiry-form input,
+        .project-enquiry-form select,
+        .project-enquiry-form textarea,
+        .project-enquiry-form .form-input,
+        .project-enquiry-form .form-select,
+        .project-enquiry-form .form-textarea {
+          background-color: #121212 !important;
+          background: #121212 !important;
+          color: #FFFFFF !important;
+          border: 1px solid rgba(255, 255, 255, 0.14) !important;
+          border-radius: 4px !important;
+          color-scheme: dark !important;
+        }
+
+        .project-enquiry-form select,
+        .project-enquiry-form .form-select {
+          -webkit-appearance: none !important;
+          -moz-appearance: none !important;
+          appearance: none !important;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%23A0A0A0' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+          background-repeat: no-repeat !important;
+          background-position: right 16px center !important;
+          padding-right: 42px !important;
+          cursor: pointer !important;
+        }
+
+        .project-enquiry-form select::-ms-expand,
+        select.form-select::-ms-expand {
+          display: none !important;
+        }
+
+        .project-enquiry-form select option {
+          background-color: #121212 !important;
+          background: #121212 !important;
+          color: #FFFFFF !important;
+        }
+
+        .project-enquiry-form textarea,
+        .project-enquiry-form .form-textarea {
+          -webkit-appearance: none !important;
+          appearance: none !important;
+          resize: vertical !important;
+        }
+
+        .project-enquiry-form input::placeholder,
+        .project-enquiry-form textarea::placeholder {
+          color: #777777 !important;
+          opacity: 1 !important;
+        }
+
+        .project-enquiry-form input:focus,
+        .project-enquiry-form select:focus,
+        .project-enquiry-form textarea:focus {
+          background-color: #161616 !important;
+          background: #161616 !important;
+          color: #FFFFFF !important;
+          outline: none !important;
+          border-color: #FF351F !important;
+          box-shadow: 0 0 0 1px rgba(255, 53, 31, 0.4) !important;
         }
       `}</style>
     </div>
