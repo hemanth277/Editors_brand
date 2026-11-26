@@ -6,173 +6,303 @@ import {
   X,
   Volume2,
   VolumeX,
-  ChevronLeft,
-  ChevronRight,
   Maximize2,
   Loader,
   Sparkles,
 } from 'lucide-react'
 import { usePortfolioVideos, CONTENT_CATEGORIES } from '../hooks/usePortfolioVideos'
 
+// Curated luxury editorial showcase combining cinematic photos and vertical reels
+const EDITORIAL_ITEMS = [
+  {
+    id: 'edit-1',
+    type: 'video',
+    title: 'Kinetic High-Fashion Story',
+    category: 'Brand Commercial',
+    aspect: 'tall', // 280px x 490px
+    thumbnail: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=85',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-vertical-video-of-a-fashion-model-in-the-studio-41716-large.mp4',
+  },
+  {
+    id: 'edit-2',
+    type: 'image',
+    title: 'Editorial Ceremony & Light',
+    category: 'Cinematic Visuals',
+    aspect: 'medium', // 250px x 420px
+    thumbnail: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=85',
+  },
+  {
+    id: 'edit-3',
+    type: 'video',
+    title: 'Brand Promotional Motion',
+    category: 'Brand Commercial',
+    aspect: 'tall', // 290px x 510px
+    thumbnail: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=85',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-young-woman-skater-posing-for-camera-in-a-park-vertical-41738-large.mp4',
+  },
+  {
+    id: 'edit-4',
+    type: 'image',
+    title: 'Timeless Silhouette & Mood',
+    category: 'Editorial Photography',
+    aspect: 'compact', // 240px x 380px
+    thumbnail: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800&q=85',
+  },
+  {
+    id: 'edit-5',
+    type: 'video',
+    title: 'Corporate Story & Vision',
+    category: 'Corporate Film',
+    aspect: 'tall', // 280px x 480px
+    thumbnail: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=85',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-vertical-shot-of-a-woman-in-an-office-using-a-laptop-42999-large.mp4',
+  },
+  {
+    id: 'edit-6',
+    type: 'image',
+    title: 'Vibrant Traditional Elegance',
+    category: 'Luxury Celebrations',
+    aspect: 'medium', // 260px x 430px
+    thumbnail: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&q=85',
+  },
+  {
+    id: 'edit-7',
+    type: 'video',
+    title: 'Color Grading & Studio Cut',
+    category: 'Post-Production',
+    aspect: 'tall', // 290px x 500px
+    thumbnail: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=85',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-vertical-video-of-a-photographer-taking-pictures-in-a-studio-41717-large.mp4',
+  },
+  {
+    id: 'edit-8',
+    type: 'image',
+    title: 'Grand Architecture & Glamour',
+    category: 'Editorial Shoot',
+    aspect: 'compact', // 240px x 390px
+    thumbnail: 'https://images.unsplash.com/photo-1511795409834-432f7b1728b2?w=800&q=85',
+  },
+  {
+    id: 'edit-9',
+    type: 'video',
+    title: 'Motion Invitation Suite',
+    category: 'Digital Invitation',
+    aspect: 'tall', // 280px x 480px
+    thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=85',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-vertical-shot-of-a-toast-with-champagne-glasses-42994-large.mp4',
+  },
+  {
+    id: 'edit-10',
+    type: 'image',
+    title: 'Candid Euphoria & Energy',
+    category: 'Luxury Storytelling',
+    aspect: 'medium', // 250px x 420px
+    thumbnail: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&q=85',
+  },
+  {
+    id: 'edit-11',
+    type: 'video',
+    title: 'Commercial Product Motion',
+    category: 'Brand Commercial',
+    aspect: 'tall', // 290px x 510px
+    thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=85',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-model-posing-for-a-commercial-vertical-41724-large.mp4',
+  },
+]
+
 export default function VideoGallery() {
   const { videos, loading } = usePortfolioVideos()
   const [selectedCategory, setSelectedCategory] = useState('All')
-  const [activeModalVideo, setActiveModalVideo] = useState(null)
-  const [isInteracting, setIsInteracting] = useState(false)
-  const [centerIndex, setCenterIndex] = useState(0)
+  const [activeModalItem, setActiveModalItem] = useState(null)
+  const [isPaused, setIsPaused] = useState(false)
 
   const sectionRef = useRef(null)
   const inView = useInView(sectionRef, { once: false, margin: '-40px' })
-  const sliderRef = useRef(null)
-  const resumeTimerRef = useRef(null)
-  const autoStepIntervalRef = useRef(null)
 
-  // Drag tracking state
-  const isDownRef = useRef(false)
-  const startXRef = useRef(0)
-  const scrollLeftRef = useRef(0)
+  // Container refs for requestAnimationFrame scrolling
+  const containerRef = useRef(null)
+  const offsetRef = useRef(0)
+  const rafIdRef = useRef(null)
+  const lastTimeRef = useRef(null)
+
+  // Drag interaction refs
+  const isDraggingRef = useRef(false)
+  const dragStartXRef = useRef(0)
+  const dragStartOffsetRef = useRef(0)
   const hasMovedRef = useRef(false)
+  const userInteractionTimeoutRef = useRef(null)
 
-  // Filter items
-  const filteredVideos = (selectedCategory === 'All'
-    ? videos
-    : videos.filter((v) => v.category === selectedCategory)
-  ).map((v) => ({
-    ...v,
-    videoUrl: v.public_url || v.videoUrl || '',
-    thumbnail: v.thumbnail_url || v.thumbnail || '',
-  }))
+  // Merge database portfolio videos with editorial photography for rich layout
+  const allItems = (() => {
+    if (!videos || videos.length === 0) return EDITORIAL_ITEMS
+    // Combine dynamic db videos with curated editorial visuals
+    const dbFormatted = videos.map((v, i) => ({
+      id: v.id || `db-${i}`,
+      type: v.media_type || 'video',
+      title: v.title || 'Cinematic Film',
+      category: v.category || 'Content Creation',
+      aspect: i % 3 === 0 ? 'tall' : i % 3 === 1 ? 'medium' : 'compact',
+      thumbnail: v.thumbnail_url || v.thumbnail || EDITORIAL_ITEMS[i % EDITORIAL_ITEMS.length].thumbnail,
+      videoUrl: v.public_url || v.videoUrl || '',
+    }))
 
-  // Scroll to a specific card index smoothly
-  const scrollToCardIndex = useCallback((targetIndex) => {
-    const slider = sliderRef.current
-    if (!slider) return
-    const cards = slider.querySelectorAll('.snap-video-card')
-    if (!cards.length) return
-
-    const safeIndex = (targetIndex + cards.length) % cards.length
-    const targetCard = cards[safeIndex]
-    if (!targetCard) return
-
-    // Center the card in the viewport
-    const containerWidth = slider.clientWidth
-    const cardLeft = targetCard.offsetLeft
-    const cardWidth = targetCard.clientWidth
-    const scrollTo = cardLeft - (containerWidth / 2) + (cardWidth / 2)
-
-    slider.scrollTo({
-      left: scrollTo,
-      behavior: 'smooth',
-    })
-    setCenterIndex(safeIndex)
-  }, [])
-
-  // Advance one card at a time slowly every 4 seconds
-  useEffect(() => {
-    if (!inView || isInteracting || filteredVideos.length <= 1) {
-      if (autoStepIntervalRef.current) clearInterval(autoStepIntervalRef.current)
-      return
-    }
-
-    autoStepIntervalRef.current = setInterval(() => {
-      setCenterIndex((prevIdx) => {
-        const nextIdx = (prevIdx + 1) % filteredVideos.length
-        scrollToCardIndex(nextIdx)
-        return nextIdx
-      })
-    }, 4200) // 4.2 seconds on each video for a slow, premium pace
-
-    return () => {
-      if (autoStepIntervalRef.current) clearInterval(autoStepIntervalRef.current)
-    }
-  }, [inView, isInteracting, filteredVideos.length, scrollToCardIndex])
-
-  // Track the most centered card for visual prominence
-  const updateCenterCard = useCallback(() => {
-    const slider = sliderRef.current
-    if (!slider) return
-    const cards = slider.querySelectorAll('.snap-video-card')
-    if (!cards.length) return
-
-    const containerRect = slider.getBoundingClientRect()
-    const containerCenter = containerRect.left + containerRect.width / 2
-
-    let closestDist = Infinity
-    let closestIdx = 0
-
-    cards.forEach((card, idx) => {
-      const rect = card.getBoundingClientRect()
-      const cardCenter = rect.left + rect.width / 2
-      const dist = Math.abs(containerCenter - cardCenter)
-      if (dist < closestDist) {
-        closestDist = dist
-        closestIdx = idx
+    // Interleave db items with photo elements to build high-end editorial feel
+    const combined = []
+    const maxLen = Math.max(dbFormatted.length, EDITORIAL_ITEMS.length)
+    for (let i = 0; i < maxLen; i++) {
+      if (dbFormatted[i]) combined.push(dbFormatted[i])
+      if (EDITORIAL_ITEMS[i] && EDITORIAL_ITEMS[i].type === 'image') {
+        combined.push(EDITORIAL_ITEMS[i])
       }
-    })
-
-    setCenterIndex(closestIdx)
-  }, [])
-
-  useEffect(() => {
-    const slider = sliderRef.current
-    if (!slider) return
-    slider.addEventListener('scroll', updateCenterCard, { passive: true })
-    window.addEventListener('resize', updateCenterCard)
-    updateCenterCard()
-    return () => {
-      slider.removeEventListener('scroll', updateCenterCard)
-      window.removeEventListener('resize', updateCenterCard)
     }
-  }, [updateCenterCard, filteredVideos.length])
+    return combined
+  })()
 
-  // Interaction handlers to pause auto-advancing
-  const handleUserInteractionStart = () => {
-    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current)
-    if (autoStepIntervalRef.current) clearInterval(autoStepIntervalRef.current)
-    setIsInteracting(true)
+  // Filter items by category if selected
+  const filteredItems = selectedCategory === 'All'
+    ? allItems
+    : allItems.filter(item => {
+        const cat = item.category?.toLowerCase() || ''
+        const sel = selectedCategory.toLowerCase()
+        return cat.includes(sel) || sel.includes(cat)
+      })
+
+  // We duplicate the list so when offset reaches the width of one full set, it resets seamlessly
+  const displayItems = filteredItems.length > 0 ? filteredItems : EDITORIAL_ITEMS
+
+  // Track hover or touch interaction
+  const pauseScroll = () => {
+    setIsPaused(true)
+    if (userInteractionTimeoutRef.current) clearTimeout(userInteractionTimeoutRef.current)
   }
 
-  const handleUserInteractionEnd = () => {
-    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current)
-    resumeTimerRef.current = setTimeout(() => {
-      setIsInteracting(false)
-    }, 4000) // Resume after 4 seconds of inactivity
+  const resumeScrollDelayed = (delayMs = 1200) => {
+    if (userInteractionTimeoutRef.current) clearTimeout(userInteractionTimeoutRef.current)
+    userInteractionTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false)
+    }, delayMs)
   }
 
-  // Mouse drag logic
+  // Smooth marquee loop via requestAnimationFrame
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    // Speed in pixels per millisecond (~45px per second for a smooth, cinematic glide)
+    const speed = 0.048
+
+    const tick = (now) => {
+      if (!lastTimeRef.current) lastTimeRef.current = now
+      const delta = Math.min(now - lastTimeRef.current, 60) // cap max delta to avoid frame spikes
+      lastTimeRef.current = now
+
+      if (inView && !isPaused && !isDraggingRef.current && containerRef.current) {
+        offsetRef.current += speed * delta
+
+        const halfWidth = containerRef.current.scrollWidth / 2
+        if (halfWidth > 0 && offsetRef.current >= halfWidth) {
+          offsetRef.current -= halfWidth
+        }
+
+        // Apply GPU-accelerated 3D transform directly to bypass React render overhead
+        containerRef.current.style.transform = `translate3d(-${offsetRef.current}px, 0, 0)`
+      }
+
+      rafIdRef.current = requestAnimationFrame(tick)
+    }
+
+    rafIdRef.current = requestAnimationFrame(tick)
+    return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+      if (userInteractionTimeoutRef.current) clearTimeout(userInteractionTimeoutRef.current)
+    }
+  }, [inView, isPaused, displayItems.length])
+
+  // Mouse Drag Interaction
   const handleMouseDown = (e) => {
-    const slider = sliderRef.current
-    if (!slider) return
-    isDownRef.current = true
+    isDraggingRef.current = true
     hasMovedRef.current = false
-    startXRef.current = e.pageX - slider.offsetLeft
-    scrollLeftRef.current = slider.scrollLeft
-    handleUserInteractionStart()
+    dragStartXRef.current = e.clientX
+    dragStartOffsetRef.current = offsetRef.current
+    pauseScroll()
   }
 
   const handleMouseMove = (e) => {
-    if (!isDownRef.current) return
-    const slider = sliderRef.current
-    if (!slider) return
-    const x = e.pageX - slider.offsetLeft
-    const walk = (x - startXRef.current) * 1.2
-    if (Math.abs(walk) > 6) {
+    if (!isDraggingRef.current) return
+    const diff = dragStartXRef.current - e.clientX
+    if (Math.abs(diff) > 5) {
       hasMovedRef.current = true
     }
-    slider.scrollLeft = scrollLeftRef.current - walk
+
+    offsetRef.current = dragStartOffsetRef.current + diff
+
+    if (containerRef.current) {
+      const halfWidth = containerRef.current.scrollWidth / 2
+      if (halfWidth > 0) {
+        if (offsetRef.current >= halfWidth) offsetRef.current -= halfWidth
+        if (offsetRef.current < 0) offsetRef.current += halfWidth
+      }
+      containerRef.current.style.transform = `translate3d(-${offsetRef.current}px, 0, 0)`
+    }
   }
 
   const handleMouseUp = () => {
-    isDownRef.current = false
-    handleUserInteractionEnd()
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false
+      resumeScrollDelayed(2000)
+    }
   }
 
-  // Nav arrow click (1 by 1)
-  const scrollNav = (direction) => {
-    handleUserInteractionStart()
-    const nextIdx = direction === 'left' ? centerIndex - 1 : centerIndex + 1
-    scrollToCardIndex(nextIdx)
-    handleUserInteractionEnd()
+  // Touch Gesture Interaction
+  const handleTouchStart = (e) => {
+    isDraggingRef.current = true
+    hasMovedRef.current = false
+    dragStartXRef.current = e.touches[0].clientX
+    dragStartOffsetRef.current = offsetRef.current
+    pauseScroll()
+  }
+
+  const handleTouchMove = (e) => {
+    if (!isDraggingRef.current) return
+    const diff = dragStartXRef.current - e.touches[0].clientX
+    if (Math.abs(diff) > 5) {
+      hasMovedRef.current = true
+    }
+
+    offsetRef.current = dragStartOffsetRef.current + diff
+
+    if (containerRef.current) {
+      const halfWidth = containerRef.current.scrollWidth / 2
+      if (halfWidth > 0) {
+        if (offsetRef.current >= halfWidth) offsetRef.current -= halfWidth
+        if (offsetRef.current < 0) offsetRef.current += halfWidth
+      }
+      containerRef.current.style.transform = `translate3d(-${offsetRef.current}px, 0, 0)`
+    }
+  }
+
+  const handleTouchEnd = () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false
+      resumeScrollDelayed(2200)
+    }
+  }
+
+  // Trackpad / Wheel handling
+  const handleWheel = (e) => {
+    pauseScroll()
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY * 0.8
+    offsetRef.current += delta
+
+    if (containerRef.current) {
+      const halfWidth = containerRef.current.scrollWidth / 2
+      if (halfWidth > 0) {
+        if (offsetRef.current >= halfWidth) offsetRef.current -= halfWidth
+        if (offsetRef.current < 0) offsetRef.current += halfWidth
+      }
+      containerRef.current.style.transform = `translate3d(-${offsetRef.current}px, 0, 0)`
+    }
+    resumeScrollDelayed(1800)
   }
 
   return (
@@ -181,28 +311,28 @@ export default function VideoGallery() {
       ref={sectionRef}
       style={{
         background: '#0A0A0A',
-        padding: 'clamp(60px, 8vh, 100px) 0 clamp(40px, 6vh, 80px)',
+        padding: 'clamp(64px, 9vh, 110px) 0 clamp(48px, 7vh, 90px)',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* Background ambient glow */}
+      {/* Background ambient editorial illumination */}
       <div
         style={{
           position: 'absolute',
-          top: '30%',
+          top: '25%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '700px',
-          height: '400px',
-          background: 'radial-gradient(ellipse, rgba(255,53,31,0.06) 0%, transparent 70%)',
+          width: '850px',
+          height: '420px',
+          background: 'radial-gradient(ellipse, rgba(255,53,31,0.065) 0%, transparent 70%)',
           pointerEvents: 'none',
-          filter: 'blur(80px)',
+          filter: 'blur(90px)',
         }}
       />
 
-      <div className="container-snap" style={{ position: 'relative' }}>
-        {/* Header */}
+      {/* Section Header */}
+      <div className="container-snap" style={{ position: 'relative', zIndex: 10 }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -222,7 +352,7 @@ export default function VideoGallery() {
             }}
           >
             <span style={{ width: '28px', height: '1px', background: '#FF351F' }} />
-            Cinematic Reel Showcase
+            Cinematic Visual Gallery
             <span style={{ width: '28px', height: '1px', background: '#FF351F' }} />
           </motion.p>
 
@@ -232,23 +362,24 @@ export default function VideoGallery() {
             transition={{ duration: 0.6, delay: 0.1 }}
             style={{
               fontFamily: 'Playfair Display, serif',
-              fontSize: 'clamp(2rem, 4.5vw, 3.8rem)',
+              fontSize: 'clamp(2.2rem, 5vw, 4.2rem)',
               fontWeight: 900,
-              lineHeight: 1.15,
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
               color: '#fff',
               marginBottom: '16px',
             }}
           >
-            Crafted for attention.{' '}
+            Moments captured in{' '}
             <span
               style={{
                 fontStyle: 'italic',
-                background: 'linear-gradient(90deg, #fff 10%, #FF351F 90%)',
+                background: 'linear-gradient(90deg, #fff 20%, #FF351F 90%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              Engineered to perform.
+              timeless motion.
             </span>
           </motion.h2>
 
@@ -258,17 +389,18 @@ export default function VideoGallery() {
             transition={{ duration: 0.6, delay: 0.2 }}
             style={{
               fontFamily: 'Inter, sans-serif',
-              fontSize: '0.9rem',
+              fontSize: '0.92rem',
               color: '#A0A0A0',
-              maxWidth: '560px',
+              maxWidth: '620px',
               margin: '0 auto',
+              lineHeight: 1.6,
             }}
           >
-            Swipe, drag, or tap any vertical film to preview in high-definition full screen.
+            A seamless infinite showcase of vertical films, commercial reels, and editorial portraiture. Hover or drag to explore at your own pace.
           </motion.p>
         </div>
 
-        {/* Category Filter Pills */}
+        {/* Filter Pills */}
         <div
           style={{
             display: 'flex',
@@ -276,7 +408,7 @@ export default function VideoGallery() {
             justifyContent: 'center',
             gap: '10px',
             flexWrap: 'wrap',
-            marginBottom: '40px',
+            marginBottom: '42px',
           }}
         >
           {['All', ...CONTENT_CATEGORIES].map((cat) => {
@@ -284,20 +416,15 @@ export default function VideoGallery() {
             return (
               <button
                 key={cat}
-                onClick={() => {
-                  setSelectedCategory(cat)
-                  handleUserInteractionStart()
-                  handleUserInteractionEnd()
-                  setTimeout(() => scrollToCardIndex(0), 100)
-                }}
+                onClick={() => setSelectedCategory(cat)}
                 style={{
                   background: isSelected ? '#FF351F' : 'rgba(255,255,255,0.04)',
                   border: isSelected ? '1px solid #FF351F' : '1px solid rgba(255,255,255,0.1)',
                   color: isSelected ? '#fff' : '#A0A0A0',
-                  padding: '8px 18px',
+                  padding: '7px 18px',
                   borderRadius: '24px',
                   fontFamily: 'Inter, sans-serif',
-                  fontSize: '0.75rem',
+                  fontSize: '0.74rem',
                   fontWeight: 600,
                   letterSpacing: '0.04em',
                   cursor: 'pointer',
@@ -323,369 +450,225 @@ export default function VideoGallery() {
         </div>
       </div>
 
-      {/* Horizontal Carousel Container */}
+      {/* Ultra-Smooth Continuous Marquee Track */}
       <div
+        className="marquee-viewport"
+        onMouseEnter={pauseScroll}
+        onMouseLeave={() => resumeScrollDelayed(500)}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onWheel={handleWheel}
         style={{
           position: 'relative',
-          width: '100%',
-          padding: '20px 0 30px',
+          width: '100vw',
+          marginLeft: 'calc(-50vw + 50%)',
+          marginRight: 'calc(-50vw + 50%)',
+          overflow: 'hidden',
+          cursor: isDraggingRef.current ? 'grabbing' : 'grab',
+          userSelect: 'none',
+          paddingTop: '20px',
+          paddingBottom: '30px',
         }}
       >
-        {/* Navigation Arrow Left */}
-        <button
-          onClick={() => scrollNav('left')}
-          aria-label="Previous reel"
-          className="gallery-nav-btn prev"
-          style={{
-            position: 'absolute',
-            left: '24px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 30,
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            background: 'rgba(15,15,15,0.85)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            backdropFilter: 'blur(12px)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#FF351F'
-            e.currentTarget.style.borderColor = '#FF351F'
-            e.currentTarget.style.transform = 'translateY(-50%) scale(1.08)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(15,15,15,0.85)'
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
-            e.currentTarget.style.transform = 'translateY(-50%) scale(1)'
-          }}
-        >
-          <ChevronLeft size={22} />
-        </button>
-
-        {/* Navigation Arrow Right */}
-        <button
-          onClick={() => scrollNav('right')}
-          aria-label="Next reel"
-          className="gallery-nav-btn next"
-          style={{
-            position: 'absolute',
-            right: '24px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 30,
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            background: 'rgba(15,15,15,0.85)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            backdropFilter: 'blur(12px)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#FF351F'
-            e.currentTarget.style.borderColor = '#FF351F'
-            e.currentTarget.style.transform = 'translateY(-50%) scale(1.08)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(15,15,15,0.85)'
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
-            e.currentTarget.style.transform = 'translateY(-50%) scale(1)'
-          }}
-        >
-          <ChevronRight size={22} />
-        </button>
-
-        {/* Side gradient feathering */}
+        {/* Soft edge feathering vignettes */}
         <div
-          className="edge-fade edge-fade-left"
           style={{
             position: 'absolute',
             top: 0,
             bottom: 0,
             left: 0,
-            width: 'clamp(40px, 8vw, 120px)',
+            width: 'clamp(50px, 10vw, 160px)',
             background: 'linear-gradient(to right, #0A0A0A 20%, transparent 100%)',
             zIndex: 20,
             pointerEvents: 'none',
           }}
         />
         <div
-          className="edge-fade edge-fade-right"
           style={{
             position: 'absolute',
             top: 0,
             bottom: 0,
             right: 0,
-            width: 'clamp(40px, 8vw, 120px)',
+            width: 'clamp(50px, 10vw, 160px)',
             background: 'linear-gradient(to left, #0A0A0A 20%, transparent 100%)',
             zIndex: 20,
             pointerEvents: 'none',
           }}
         />
 
-        {/* Scrollable Track with CSS Scroll-Snap */}
+        {/* Continuous moving track with 2 duplicated sets for seamless loop */}
         <div
-          ref={sliderRef}
-          className="gallery-scroll-track"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchStart={handleUserInteractionStart}
-          onTouchEnd={handleUserInteractionEnd}
+          ref={containerRef}
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '24px',
-            overflowX: 'auto',
-            scrollSnapType: 'x mandatory',
-            scrollBehavior: 'smooth',
-            paddingLeft: 'max(24px, calc(50vw - 145px))',
-            paddingRight: 'max(24px, calc(50vw - 145px))',
-            paddingTop: '20px',
-            paddingBottom: '20px',
-            cursor: 'grab',
-            userSelect: 'none',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch',
+            width: 'max-content',
+            willChange: 'transform',
+            transform: 'translate3d(0, 0, 0)',
           }}
         >
-          {loading ? (
-            <div style={{ padding: '80px', margin: '0 auto', color: '#FF351F' }}>
-              <Loader size={32} style={{ animation: 'spin 1s linear infinite' }} />
-            </div>
-          ) : filteredVideos.length === 0 ? (
-            <div style={{ padding: '60px', color: '#A0A0A0', fontFamily: 'Inter, sans-serif' }}>
-              No videos in this category yet.
-            </div>
-          ) : (
-            filteredVideos.map((video, idx) => {
-              const isCenter = idx === centerIndex
-              return (
-                <VideoCard
-                  key={video.id || idx}
-                  video={video}
-                  isCenter={isCenter}
-                  inSectionView={inView}
-                  onClick={() => {
-                    if (!hasMovedRef.current) {
-                      if (!isCenter) {
-                        scrollToCardIndex(idx)
-                      } else {
-                        setActiveModalVideo(video)
-                      }
-                    }
-                  }}
-                />
-              )
-            })
-          )}
-        </div>
+          {/* First set */}
+          {displayItems.map((item, idx) => (
+            <EditorialCard
+              key={`a-${item.id || idx}`}
+              item={item}
+              inSectionView={inView}
+              onClick={() => {
+                if (!hasMovedRef.current) {
+                  setActiveModalItem(item)
+                }
+              }}
+            />
+          ))}
 
-        {/* Interactive Pagination Dots (One by One) */}
-        {filteredVideos.length > 1 && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              marginTop: '16px',
-            }}
-          >
-            {filteredVideos.map((_, dotIdx) => (
-              <button
-                key={dotIdx}
-                onClick={() => {
-                  handleUserInteractionStart()
-                  scrollToCardIndex(dotIdx)
-                  handleUserInteractionEnd()
-                }}
-                aria-label={`Go to reel ${dotIdx + 1}`}
-                style={{
-                  width: dotIdx === centerIndex ? '28px' : '8px',
-                  height: '8px',
-                  borderRadius: '4px',
-                  background: dotIdx === centerIndex ? '#FF351F' : 'rgba(255,255,255,0.2)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 0,
-                  transition: 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)',
-                }}
-              />
-            ))}
-          </div>
-        )}
+          {/* Duplicated second set for continuous seamless looping */}
+          {displayItems.map((item, idx) => (
+            <EditorialCard
+              key={`b-${item.id || idx}`}
+              item={item}
+              inSectionView={inView}
+              onClick={() => {
+                if (!hasMovedRef.current) {
+                  setActiveModalItem(item)
+                }
+              }}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Expanded Modal Player */}
+      {/* Modal Lightbox Player */}
       <AnimatePresence>
-        {activeModalVideo && (
-          <ExpandedVideoPlayer
-            video={activeModalVideo}
-            onClose={() => setActiveModalVideo(null)}
+        {activeModalItem && (
+          <EditorialModal
+            item={activeModalItem}
+            onClose={() => setActiveModalItem(null)}
           />
         )}
       </AnimatePresence>
-
-      <style>{`
-        .gallery-scroll-track::-webkit-scrollbar {
-          display: none;
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        @media (max-width: 768px) {
-          .gallery-nav-btn {
-            display: none !important;
-          }
-          .edge-fade {
-            width: 24px !important;
-          }
-        }
-      `}</style>
     </section>
   )
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-//  PORTRAIT 9:16 VIDEO CARD COMPONENT
+//  DYNAMIC EDITORIAL CARD (Supports Portrait Videos & Editorial Stills)
 // ══════════════════════════════════════════════════════════════════════════
-function VideoCard({ video, isCenter, inSectionView, onClick }) {
-  const [isPlaying, setIsPlaying] = useState(false)
+function EditorialCard({ item, inSectionView, onClick }) {
   const [isHovered, setIsHovered] = useState(false)
   const videoRef = useRef(null)
-  const cardRef = useRef(null)
+  const isVideo = item.type === 'video' && item.videoUrl
 
-  // Autoplay video preview only when visible in section and centered or hovered
+  // Autoplay video preview when gallery is visible
   useEffect(() => {
     const videoEl = videoRef.current
-    if (!videoEl) return
+    if (!videoEl || !isVideo) return
 
-    const shouldPlay = inSectionView && (isCenter || isHovered)
-
-    if (shouldPlay) {
-      const playPromise = videoEl.play()
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => setIsPlaying(true))
-          .catch(() => {
-            setIsPlaying(false)
-          })
+    if (inSectionView) {
+      const p = videoEl.play()
+      if (p !== undefined) {
+        p.catch(() => {})
       }
     } else {
       videoEl.pause()
-      setIsPlaying(false)
     }
-  }, [inSectionView, isCenter, isHovered])
+  }, [inSectionView, isVideo])
+
+  // Dynamic editorial sizes
+  const dimensions = (() => {
+    switch (item.aspect) {
+      case 'compact':
+        return { width: '240px', height: '390px' }
+      case 'medium':
+        return { width: '265px', height: '440px' }
+      case 'tall':
+      default:
+        return { width: '290px', height: '495px' }
+    }
+  })()
 
   return (
     <div
-      ref={cardRef}
-      className="snap-video-card"
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
         position: 'relative',
         flex: '0 0 auto',
-        width: isCenter ? '290px' : '260px',
-        height: isCenter ? '515px' : '462px', // 9:16 portrait
-        borderRadius: '20px',
+        width: dimensions.width,
+        height: dimensions.height,
+        borderRadius: '16px',
         overflow: 'hidden',
-        background: '#141414',
-        border: isCenter
+        background: '#131313',
+        border: isHovered
           ? '1.5px solid rgba(255,53,31,0.6)'
           : '1px solid rgba(255,255,255,0.08)',
-        boxShadow: isCenter
-          ? '0 24px 60px rgba(0,0,0,0.9), 0 0 40px rgba(255,53,31,0.22)'
-          : '0 12px 30px rgba(0,0,0,0.6)',
-        transform: isCenter ? 'scale(1.02)' : 'scale(0.96)',
-        opacity: isCenter ? 1 : 0.72,
-        transition: 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s, border-color 0.5s, box-shadow 0.5s, width 0.5s, height 0.5s',
+        boxShadow: isHovered
+          ? '0 24px 60px rgba(0,0,0,0.9), 0 0 35px rgba(255,53,31,0.2)'
+          : '0 12px 32px rgba(0,0,0,0.6)',
+        transform: isHovered ? 'scale(1.03) translateY(-6px)' : 'scale(1)',
+        transition: 'transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.45s, border-color 0.45s',
         cursor: 'pointer',
-        scrollSnapAlign: 'center',
-        scrollSnapStop: 'always',
       }}
     >
-      {/* Video Element */}
-      <video
-        ref={videoRef}
-        src={video.videoUrl}
-        poster={video.thumbnail}
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          display: 'block',
-          transform: isHovered ? 'scale(1.05)' : 'scale(1)',
-          transition: 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        }}
-      />
+      {/* Media: Video or High-res Photograph */}
+      {isVideo ? (
+        <video
+          ref={videoRef}
+          src={item.videoUrl}
+          poster={item.thumbnail}
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+            transform: isHovered ? 'scale(1.06)' : 'scale(1)',
+            transition: 'transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          }}
+        />
+      ) : (
+        <img
+          src={item.thumbnail}
+          alt={item.title}
+          loading="lazy"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+            transform: isHovered ? 'scale(1.06)' : 'scale(1)',
+            transition: 'transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          }}
+        />
+      )}
 
       {/* Cinematic Vignette Overlay */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background:
-            'linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.2) 40%, rgba(10,10,10,0.4) 100%)',
+          background: 'linear-gradient(to top, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.15) 45%, rgba(8,8,8,0.3) 100%)',
           pointerEvents: 'none',
         }}
       />
 
-      {/* Center play icon badge */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: isCenter ? '54px' : '46px',
-          height: isCenter ? '54px' : '46px',
-          borderRadius: '50%',
-          background: isPlaying ? 'rgba(0,0,0,0.45)' : 'rgba(255,53,31,0.9)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 6px 20px rgba(0,0,0,0.5)',
-          opacity: isPlaying && !isHovered ? 0 : 1,
-          transition: 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)',
-          pointerEvents: 'none',
-        }}
-      >
-        <Play size={isCenter ? 20 : 18} fill="#fff" color="#fff" style={{ marginLeft: '2px' }} />
-      </div>
-
-      {/* Live Badge for currently active/playing card */}
-      {isPlaying && (
+      {/* Video Indicator Badge */}
+      {isVideo && (
         <div
           style={{
             position: 'absolute',
-            top: '16px',
-            left: '16px',
-            background: 'rgba(0,0,0,0.65)',
-            border: '1px solid rgba(255,53,31,0.5)',
+            top: '14px',
+            left: '14px',
+            background: 'rgba(0,0,0,0.6)',
+            border: '1px solid rgba(255,53,31,0.4)',
             backdropFilter: 'blur(8px)',
             borderRadius: '20px',
             padding: '4px 10px',
@@ -714,36 +697,41 @@ function VideoCard({ video, isCenter, inSectionView, onClick }) {
               color: '#fff',
             }}
           >
-            Preview
+            Reel
           </span>
         </div>
       )}
 
-      {/* Expand Icon hint */}
+      {/* Center Play / View icon on hover */}
       <div
         style={{
           position: 'absolute',
-          top: '16px',
-          right: '16px',
-          background: 'rgba(0,0,0,0.5)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(6px)',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '52px',
+          height: '52px',
           borderRadius: '50%',
-          width: '32px',
-          height: '32px',
+          background: isVideo ? 'rgba(255,53,31,0.92)' : 'rgba(255,255,255,0.9)',
+          color: isVideo ? '#fff' : '#111',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#fff',
-          opacity: isHovered || isCenter ? 1 : 0,
-          transition: 'opacity 0.25s',
-          zIndex: 10,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+          opacity: isHovered ? 1 : 0,
+          transition: 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)',
+          pointerEvents: 'none',
+          zIndex: 15,
         }}
       >
-        <Maximize2 size={13} />
+        {isVideo ? (
+          <Play size={20} fill="#fff" style={{ marginLeft: '3px' }} />
+        ) : (
+          <Maximize2 size={18} />
+        )}
       </div>
 
-      {/* Bottom Info Box */}
+      {/* Bottom Editorial Caption */}
       <div
         style={{
           position: 'absolute',
@@ -769,20 +757,19 @@ function VideoCard({ video, isCenter, inSectionView, onClick }) {
           }}
         >
           <Sparkles size={11} />
-          {video.category}
+          {item.category}
         </div>
         <h3
           style={{
             fontFamily: 'Playfair Display, serif',
-            fontSize: isCenter ? '1.15rem' : '1.02rem',
+            fontSize: '1.05rem',
             fontWeight: 700,
             color: '#fff',
             lineHeight: 1.25,
             margin: 0,
-            transition: 'font-size 0.3s',
           }}
         >
-          {video.title}
+          {item.title}
         </h3>
       </div>
     </div>
@@ -790,16 +777,15 @@ function VideoCard({ video, isCenter, inSectionView, onClick }) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-//  FULL-FEATURED EXPANDED VIDEO PLAYER MODAL
+//  FULL-SCREEN CINEMATIC LIGHTBOX / PLAYER MODAL
 // ══════════════════════════════════════════════════════════════════════════
-function ExpandedVideoPlayer({ video, onClose }) {
+function EditorialModal({ item, onClose }) {
+  const isVideo = item.type === 'video' && item.videoUrl
   const videoRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
 
-  // Keyboard shortcut to close (Escape)
+  // Escape key listener
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose()
@@ -827,34 +813,6 @@ function ExpandedVideoPlayer({ video, onClose }) {
     setIsMuted(!isMuted)
   }
 
-  const handleTimeUpdate = () => {
-    const v = videoRef.current
-    if (v) {
-      setCurrentTime(v.currentTime)
-      setDuration(v.duration || 0)
-    }
-  }
-
-  const handleSeek = (e) => {
-    const v = videoRef.current
-    if (v && duration) {
-      const rect = e.currentTarget.getBoundingClientRect()
-      const clickX = e.clientX - rect.left
-      const newPct = clickX / rect.width
-      v.currentTime = newPct * duration
-      setCurrentTime(newPct * duration)
-    }
-  }
-
-  const formatTime = (seconds) => {
-    if (isNaN(seconds)) return '0:00'
-    const mins = Math.floor(seconds / 60)
-    const secs = Math.floor(seconds % 60)
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`
-  }
-
-  const progressPct = duration > 0 ? (currentTime / duration) * 100 : 0
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -865,8 +823,8 @@ function ExpandedVideoPlayer({ video, onClose }) {
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: 'rgba(5,5,5,0.92)',
-        backdropFilter: 'blur(20px)',
+        background: 'rgba(5,5,5,0.94)',
+        backdropFilter: 'blur(24px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -882,9 +840,9 @@ function ExpandedVideoPlayer({ video, onClose }) {
         style={{
           position: 'relative',
           width: '100%',
-          maxWidth: '420px',
+          maxWidth: isVideo ? '420px' : '650px',
           maxHeight: '90vh',
-          aspectRatio: '9/16',
+          aspectRatio: isVideo ? '9/16' : 'auto',
           borderRadius: '24px',
           overflow: 'hidden',
           background: '#000',
@@ -894,24 +852,35 @@ function ExpandedVideoPlayer({ video, onClose }) {
           flexDirection: 'column',
         }}
       >
-        {/* The video element */}
-        <video
-          ref={videoRef}
-          src={video.videoUrl}
-          autoPlay
-          playsInline
-          loop
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={handleTimeUpdate}
-          onClick={togglePlay}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            display: 'block',
-            cursor: 'pointer',
-          }}
-        />
+        {isVideo ? (
+          <video
+            ref={videoRef}
+            src={item.videoUrl}
+            autoPlay
+            playsInline
+            loop
+            onClick={togglePlay}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+              cursor: 'pointer',
+            }}
+          />
+        ) : (
+          <img
+            src={item.thumbnail}
+            alt={item.title}
+            style={{
+              width: '100%',
+              maxHeight: '80vh',
+              objectFit: 'contain',
+              display: 'block',
+              background: '#050505',
+            }}
+          />
+        )}
 
         {/* Top Control Bar */}
         <div
@@ -939,17 +908,17 @@ function ExpandedVideoPlayer({ video, onClose }) {
                 color: '#FF351F',
               }}
             >
-              {video.category}
+              {item.category}
             </span>
             <div
               style={{
                 fontFamily: 'Playfair Display, serif',
-                fontSize: '1.1rem',
+                fontSize: '1.15rem',
                 fontWeight: 700,
                 color: '#fff',
               }}
             >
-              {video.title}
+              {item.title}
             </div>
           </div>
 
@@ -977,85 +946,17 @@ function ExpandedVideoPlayer({ video, onClose }) {
           </button>
         </div>
 
-        {/* Center Play/Pause indicator on click */}
-        {!isPlaying && (
+        {/* Video specific controls */}
+        {isVideo && (
           <div
-            onClick={togglePlay}
             style={{
               position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '70px',
-              height: '70px',
-              borderRadius: '50%',
-              background: 'rgba(255,53,31,0.92)',
-              backdropFilter: 'blur(10px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              cursor: 'pointer',
-              boxShadow: '0 8px 30px rgba(255,53,31,0.5)',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '24px 20px 20px',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%)',
               zIndex: 10,
-            }}
-          >
-            <Play size={28} fill="#fff" style={{ marginLeft: '4px' }} />
-          </div>
-        )}
-
-        {/* Bottom Playback Controls */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: '24px 20px 20px',
-            background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%)',
-            zIndex: 10,
-          }}
-        >
-          {/* Progress bar */}
-          <div
-            onClick={handleSeek}
-            style={{
-              width: '100%',
-              height: '4px',
-              background: 'rgba(255,255,255,0.2)',
-              borderRadius: '2px',
-              cursor: 'pointer',
-              marginBottom: '14px',
-              position: 'relative',
-            }}
-          >
-            <div
-              style={{
-                width: `${progressPct}%`,
-                height: '100%',
-                background: '#FF351F',
-                borderRadius: '2px',
-                position: 'relative',
-                boxShadow: '0 0 10px #FF351F',
-              }}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  right: '-5px',
-                  top: '-4px',
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  background: '#fff',
-                  boxShadow: '0 0 8px rgba(0,0,0,0.6)',
-                }}
-              />
-            </div>
-          </div>
-
-          <div
-            style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -1064,43 +965,16 @@ function ExpandedVideoPlayer({ video, onClose }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <button
                 onClick={togglePlay}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: 0,
-                }}
+                style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 0 }}
               >
                 {isPlaying ? <Pause size={20} /> : <Play size={20} fill="#fff" />}
               </button>
-
               <button
                 onClick={toggleMute}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: 0,
-                }}
+                style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 0 }}
               >
                 {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
               </button>
-
-              <span
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '0.75rem',
-                  color: '#A0A0A0',
-                }}
-              >
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
             </div>
 
             <a
@@ -1116,16 +990,16 @@ function ExpandedVideoPlayer({ video, onClose }) {
                 fontFamily: 'Inter, sans-serif',
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                padding: '6px 14px',
+                padding: '7px 16px',
                 borderRadius: '4px',
                 letterSpacing: '0.04em',
                 textTransform: 'uppercase',
               }}
             >
-              Book Project
+              Start Project
             </a>
           </div>
-        </div>
+        )}
       </motion.div>
     </motion.div>
   )
