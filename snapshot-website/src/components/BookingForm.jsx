@@ -74,38 +74,21 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
     setErrorMsg('')
 
     try {
-      let customerId = null
-
-      // Safe customer lookup or insert without failing on ON CONFLICT constraint
+      // 1. Insert customer record into customers table
+      // Note: We do NOT chain .select() because public users only have INSERT policy, not SELECT policy
       try {
-        const { data: existingCustomers } = await supabase
+        await supabase
           .from('customers')
-          .select('id')
-          .eq('email', form.email.trim().toLowerCase())
-          .limit(1)
-
-        if (existingCustomers && existingCustomers.length > 0) {
-          customerId = existingCustomers[0].id
-        } else {
-          const { data: newCust, error: insertCustErr } = await supabase
-            .from('customers')
-            .insert({
-              full_name: form.fullName.trim(),
-              phone: form.phone.trim(),
-              email: form.email.trim().toLowerCase(),
-            })
-            .select('id')
-            .single()
-
-          if (!insertCustErr && newCust) {
-            customerId = newCust.id
-          }
-        }
+          .insert([{
+            full_name: form.fullName.trim(),
+            phone: form.phone.trim(),
+            email: form.email.trim().toLowerCase(),
+          }])
       } catch (custErr) {
-        console.warn('Customer record note (continuing booking creation):', custErr)
+        console.warn('Customer entry notice:', custErr)
       }
 
-      // Format description and metadata for requirements / notes
+      // 2. Format description & requirements
       const structuredRequirements = [
         form.brandName ? `Brand: ${form.brandName.trim()}` : '',
         form.budget ? `Budget: ${form.budget}` : '',
@@ -113,13 +96,13 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
         form.description ? `Project Scope: ${form.description.trim()}` : '',
       ].filter(Boolean).join(' | ')
 
-      // Insert into 'bookings' table
+      // 3. Insert into 'bookings' table
+      // Note: Do NOT chain .select() because public users have INSERT policy only (RLS requires admin for SELECT)
       const bookingPayload = {
-        customer_id:  customerId,
         full_name:    form.fullName.trim(),
         phone:        form.phone.trim(),
         email:        form.email.trim().toLowerCase(),
-        event_type:   form.contentType, // maps content type
+        event_type:   form.contentType,
         event_date:   form.preferredDate || new Date().toISOString().split('T')[0],
         location:     form.brandName?.trim() || 'Digital / Remote Project',
         package_name: form.package || 'Custom Content Package',
@@ -127,31 +110,20 @@ export default function BookingForm({ selectedPackage = null, onClose = null, in
         status:       'pending',
       }
 
-      const { data: booking, error: bookErr } = await supabase
+      const { error: bookErr } = await supabase
         .from('bookings')
-        .insert(bookingPayload)
-        .select()
-        .single()
+        .insert([bookingPayload])
 
       if (bookErr) throw bookErr
-
-      // Optional edge function notification if deployed
-      try {
-        supabase.functions
-          .invoke('booking-confirmation', { body: { booking } })
-          .catch(err => console.warn('Email notification status:', err))
-      } catch {
-        // ignore edge function invocation error
-      }
 
       setStatus('success')
       setForm(defaultForm)
     } catch (err) {
-      console.error('Project inquiry error:', err)
+      console.error('Project inquiry submission error:', err)
       setStatus('error')
       setErrorMsg(
         err?.message ||
-        'Submission failed. Please email us directly at hello@snapshotagency.in or message us on WhatsApp.'
+        'Submission encountered a network issue. Please message us directly at hello@snapshotagency.in or call +91 98765 43210.'
       )
     }
   }
